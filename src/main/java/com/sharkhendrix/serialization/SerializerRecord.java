@@ -19,4 +19,5 @@ class SerializerRecord<T> {
 	public Serializer<T> getSerializer() {
 		return serializer;
 	}
+
 }

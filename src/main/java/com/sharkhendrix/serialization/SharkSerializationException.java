@@ -8,4 +8,7 @@ public class SharkSerializationException extends RuntimeException {
 		super(t);
 	}
 
+	public SharkSerializationException(String message) {
+		super(message);
+	}
 }

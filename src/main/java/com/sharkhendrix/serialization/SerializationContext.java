@@ -6,11 +6,51 @@ import com.sharkhendrix.serialization.serializer.Serializer;
 
 public interface SerializationContext {
 
-	<T> void register(Class<T> type, Serializer<? super T> serializer);
+	<T> void register(Class<T> type, Serializer<? extends T> serializer);
 
-	<T> Serializer<? super T> getSerializer(Class<T> type);
+	<T> Serializer<? extends T> getSerializer(Class<T> type);
 
-	void write(ByteBuffer buffer, Object o);
+	<T> Serializer<T> writeType(ByteBuffer buffer, T o);
 
-	Object read(ByteBuffer buffer);
+	Serializer<?> readType(ByteBuffer buffer);
+
+	ReferenceContext getReferenceContext();
+
+	default void writeObject(ByteBuffer buffer, Object o) {
+		writeType(buffer, o).write(buffer, o);
+	}
+
+	default Object readObject(ByteBuffer buffer) {
+		return readType(buffer).read(buffer);
+	}
+
+	/**
+	 * <p>
+	 * Write the full graph of the object o with a new reference context.
+	 * <p>
+	 * This default implementation does not support internal reference of the object
+	 * o.
+	 * 
+	 * @param buffer
+	 * @param o
+	 */
+	default void write(ByteBuffer buffer, Object o) {
+		getReferenceContext().resetWriteContext();
+		writeObject(buffer, o);
+	}
+
+	/**
+	 * <p>
+	 * Read the full graph of the object o with a new reference context.
+	 * <p>
+	 * This default implementation does not support internal reference of the object
+	 * o.
+	 * 
+	 * @param buffer
+	 * @return
+	 */
+	default Object read(ByteBuffer buffer) {
+		getReferenceContext().resetReadContext();
+		return readObject(buffer);
+	}
 }

@@ -5,10 +5,10 @@ import java.nio.charset.StandardCharsets;
 
 import com.sharkhendrix.serialization.SerializationContext;
 
-public class DefaultSerializers {
+public class DefaultsSerializers {
 
 	public static void registerAll(SerializationContext serialization) {
-		serialization.register(null, new NullSerializer<>());
+		serialization.register(null, nullSerializer());
 		serialization.register(Byte.class, byteSerializer());
 		serialization.register(byte.class, byteSerializer());
 		serialization.register(Short.class, shortSerializer());
@@ -22,6 +22,21 @@ public class DefaultSerializers {
 		serialization.register(Double.class, doubleSerializer());
 		serialization.register(double.class, doubleSerializer());
 		serialization.register(String.class, stringSerializer());
+	}
+
+	public static Serializer<Object> nullSerializer() {
+		return new Serializer<Object>() {
+
+			@Override
+			public void write(ByteBuffer buffer, Object object) {
+				// Nothing to write
+			}
+
+			@Override
+			public Object read(ByteBuffer buffer) {
+				return null;
+			}
+		};
 	}
 
 	public static Serializer<Byte> byteSerializer() {

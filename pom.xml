@@ -6,8 +6,9 @@
 	<artifactId>Serialization</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Shark Serialization</name>
-	<description>Fast &amp; easy serialization of Object graphs for Java</description>
+	<description>Fast &amp; easy serialization and synchronization of objects for Java</description>
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.15</maven.compiler.source>
 		<maven.compiler.target>1.15</maven.compiler.target>
 	</properties>

@@ -5,9 +5,12 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.sharkhendrix.serialization.SerializationContext;
+import com.sharkhendrix.serialization.SharedReference;
+import com.sharkhendrix.serialization.UndefinedType;
 import com.sharkhendrix.serialization.util.ReflectionUtils;
 
 public class ObjectSerializer<T> implements Serializer<T> {
@@ -22,8 +25,7 @@ public class ObjectSerializer<T> implements Serializer<T> {
 	@Override
 	public void initialize(Class<T> type, SerializationContext context) {
 		if (!ReflectionUtils.isInstanciable(type)) {
-			throw new IllegalArgumentException("Cannot initialize ObjectSerializer for the class " + type.getName()
-					+ ", it should be a normal and instanciable class");
+			throw new IllegalArgumentException("Cannot initialize ObjectSerializer for the class " + type.getName() + ", it must be a regular class");
 		}
 		Class<?> currentClass = type;
 		List<FieldRecord> fieldRecordList = new ArrayList<>();
@@ -34,20 +36,6 @@ public class ObjectSerializer<T> implements Serializer<T> {
 		fieldRecords = fieldRecordList.toArray(FieldRecord[]::new);
 	}
 
-	private void registerFields(SerializationContext context, Class<?> currentClass,
-			List<FieldRecord> fieldRecordList) {
-		for (Field field : currentClass.getDeclaredFields()) {
-			if (Modifier.isTransient(field.getModifiers())) {
-				continue;
-			}
-			if (field.isAnnotationPresent(UncertainType.class)) {
-				fieldRecordList.add(new FieldRecord(field, new UncertainTypeSerializer<>(context)));
-			} else {
-				fieldRecordList.add(new FieldRecord(field, context.getSerializer(field.getType())));
-			}
-		}
-	}
-
 	@Override
 	public void write(ByteBuffer buffer, T object) {
 		for (FieldRecord record : fieldRecords) {
@@ -56,12 +44,40 @@ public class ObjectSerializer<T> implements Serializer<T> {
 	}
 
 	@Override
-	public T read(ByteBuffer buffer) {
+	public T read(ByteBuffer buffer, Consumer<T> intermediateConsumer) {
 		T object = newInstanceSupplier.get();
+		intermediateConsumer.accept(object);
 		for (FieldRecord record : fieldRecords) {
 			record.readField(buffer, object);
 		}
 		return object;
+	}
+
+	@Override
+	public T read(ByteBuffer buffer) {
+		return read(buffer, o -> {
+		});
+	}
+
+	private void registerFields(SerializationContext context, Class<?> currentClass, List<FieldRecord> fieldRecordList) {
+		for (Field field : currentClass.getDeclaredFields()) {
+			if (Modifier.isTransient(field.getModifiers())) {
+				continue;
+			}
+			if (field.isAnnotationPresent(SharedReference.class)) {
+				fieldRecordList.add(new FieldRecord(field, new SharedReferenceSerializer<>(context.getReferenceContext(), createSerializer(context, field))));
+			} else {
+				fieldRecordList.add(new FieldRecord(field, createSerializer(context, field)));
+			}
+		}
+	}
+
+	private Serializer<?> createSerializer(SerializationContext context, Field field) {
+		if (field.isAnnotationPresent(UndefinedType.class)) {
+			return new UndefinedTypeSerializer<>(context);
+		} else {
+			return context.getSerializer(field.getType());
+		}
 	}
 
 }
