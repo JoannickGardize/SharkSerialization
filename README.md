@@ -50,7 +50,7 @@ Console output :
 data size : 6
 message : 42
 ```
-The main serialization class requires registration of every classes of the graph. Constructors are provided manually to avoid the very costly `Constructor.newInstance()` call.
+SharkSerialization requires registration of every classes of the graph. Constructors are provided manually to avoid the very costly `Constructor.newInstance()` call.
 The data is 6 bytes length : 4 bytes for the integer, and  2 bytes of overhead for the root object's type.
 
 ## Complex graphs
