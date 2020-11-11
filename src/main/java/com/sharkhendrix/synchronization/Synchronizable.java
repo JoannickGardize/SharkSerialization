@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization.synchronizer;
+package com.sharkhendrix.synchronization;
 
 public interface Synchronizable {
 
