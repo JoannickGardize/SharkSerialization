@@ -55,7 +55,7 @@ The data is 6 bytes length : 4 bytes for the integer, and  2 bytes of overhead f
 
 ## Complex graphs
 
-To improve efficiency, SharkSerialization considers by default the graph to be simple: fields are always instances of the declaring type, and there is no multiple references to the same instance. Fields which does not respect one, the other, or both of these conditions must be annotated with `@UndefinedType` and / or `@SharedReference`. Each of these annotions adds 2 bytes of overhead each time the field has to be serialized. Shared references are serialized only one time, other references will only takes 2 bytes.
+To improve efficiency, SharkSerialization considers by default the graph to be simple: fields declared type and actual value always matches a registered class and serializer pair, and there is no multiple references to the same instance. Fields which does not respect one, the other, or both of these conditions must be annotated with `@UndefinedType` and / or `@SharedReference`. Each of these annotions adds 2 bytes of overhead each time the field has to be serialized. Shared references are serialized only one time, other references will only takes 2 bytes.
 
 ## Incoming feature
 - Synchronization: share a known object graph and be able to only serialize modified parts.

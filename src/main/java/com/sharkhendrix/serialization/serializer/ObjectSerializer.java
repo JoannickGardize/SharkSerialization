@@ -19,15 +19,17 @@ import com.sharkhendrix.serialization.util.ReflectionUtils;
 
 public class ObjectSerializer<T> implements Serializer<T> {
 
+    private Class<? extends T> type;
     private Supplier<? extends T> newInstanceSupplier;
     private FieldRecord[] fieldRecords;
 
-    public ObjectSerializer(Supplier<? extends T> newInstanceSupplier) {
+    public <U extends T> ObjectSerializer(Class<U> type, Supplier<U> newInstanceSupplier) {
+        this.type = type;
         this.newInstanceSupplier = newInstanceSupplier;
     }
 
     @Override
-    public void initialize(Class<T> type, SerializationContext context) {
+    public void initialize(SerializationContext context) {
         if (!ReflectionUtils.isInstanciable(type)) {
             throw new IllegalArgumentException("Cannot initialize ObjectSerializer for the class " + type.getName() + ", it must be a regular class");
         }
