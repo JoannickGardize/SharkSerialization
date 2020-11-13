@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
+import com.sharkhendrix.serialization.serializer.ArrayInstanceSerializer;
 import com.sharkhendrix.serialization.serializer.DefaultsSerializers;
 import com.sharkhendrix.serialization.serializer.ObjectSerializer;
-import com.sharkhendrix.serialization.serializer.Serializer;
 
 public class SharkSerialization implements SerializationContext {
 
@@ -25,8 +26,12 @@ public class SharkSerialization implements SerializationContext {
         nullSerializerRecord = serializersByClass.get(null);
     }
 
-    public <T> void register(Class<T> type, Supplier<T> newInstanceSupplier) {
+    public <T> void register(Class<T> type, Supplier<? extends T> newInstanceSupplier) {
         register(type, new ObjectSerializer<>(type, newInstanceSupplier));
+    }
+
+    public <T> void registerCollection(Class<T> type, IntFunction<? extends T> newInstanceSupplier) {
+        register(type, new ArrayInstanceSerializer<>(newInstanceSupplier));
     }
 
     @Override

@@ -1,9 +1,7 @@
-package com.sharkhendrix.serialization.serializer;
+package com.sharkhendrix.serialization;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
-
-import com.sharkhendrix.serialization.SerializationContext;
 
 public interface Serializer<T> {
 

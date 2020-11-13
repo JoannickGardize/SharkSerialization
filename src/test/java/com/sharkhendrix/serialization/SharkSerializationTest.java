@@ -7,104 +7,24 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.sharkhendrix.serialization.SharkSerializationTestModel.A;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.AbstractType;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.B;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.C;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.ConfiguredArraysClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedReferenceClassA;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedReferenceClassB;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedReferenceWrapper;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.ImplementationClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.PrimitiveArrayClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.PrimitiveClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.SharedUndefinedFieldClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.SimpleSharedReferenceClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.TransientFieldClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.UndefinedFieldsClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.WrapperClass;
+
 public class SharkSerializationTest {
-
-    private static class PrimitiveClass {
-        char c;
-        boolean bo;
-        String st;
-        byte b;
-        short sh;
-        int i;
-        long l;
-        double d;
-        float f;
-    }
-
-    private static class WrapperClass {
-        Byte b;
-        Short s;
-        Integer i;
-        Long l;
-        Double d;
-        Float f;
-    }
-
-    private static class A {
-        B b;
-        C c;
-    }
-
-    private static class B {
-        C c;
-    }
-
-    private static class C {
-        int i;
-    }
-
-    private static class UndefinedFieldsClass {
-
-        @UndefinedType
-        AbstractType a;
-
-        @UndefinedType
-        AbstractType b;
-    }
-
-    private static interface AbstractType {
-
-    }
-
-    private static class ImplementationClass implements AbstractType {
-
-    }
-
-    private static class TransientFieldClass {
-        transient int i;
-    }
-
-    private static class SimpleSharedReferenceClass {
-
-        @SharedReference
-        C c;
-
-        @SharedReference
-        C c2;
-
-        @SharedReference
-        C c3;
-
-        @SharedReference
-        C c4;
-    }
-
-    private static class CyclicSharedReferenceWrapper {
-        @SharedReference
-        CyclicSharedReferenceClassA a;
-    }
-
-    private static class CyclicSharedReferenceClassA {
-
-        @SharedReference
-        CyclicSharedReferenceClassB b;
-    }
-
-    private static class CyclicSharedReferenceClassB {
-        @SharedReference
-        CyclicSharedReferenceClassA a;
-    }
-
-    private static class SharedUndefinedFieldClass {
-
-        @UndefinedType
-        @SharedReference
-        AbstractType a;
-
-        @UndefinedType
-        @SharedReference
-        AbstractType b;
-    }
 
     @Test
     public void primitivesSerializationTest() {
@@ -132,6 +52,31 @@ public class SharkSerializationTest {
         Assertions.assertEquals(a.l, a2.l);
         Assertions.assertEquals(a.d, a2.d);
         Assertions.assertEquals(a.f, a2.f);
+    }
+
+    @Test
+    public void primitiveArraysSerializationTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.register(PrimitiveArrayClass.class, PrimitiveArrayClass::new);
+        serialization.initialize();
+        PrimitiveArrayClass a = new PrimitiveArrayClass();
+        a.c = new char[] { 'a' };
+        a.bo = new boolean[] { true, false };
+        a.b = new byte[] { 12 };
+        a.sh = new short[] { 15, 12, 13 };
+        a.i = new int[] { 42 };
+        a.l = new long[] { 123 };
+        a.d = new double[] { 1.1 };
+        a.f = new float[] { 23.2f };
+        PrimitiveArrayClass a2 = writeAndRead(serialization, a);
+        Assertions.assertArrayEquals(a.c, a2.c);
+        Assertions.assertArrayEquals(a.bo, a2.bo);
+        Assertions.assertArrayEquals(a.b, a2.b);
+        Assertions.assertArrayEquals(a.sh, a2.sh);
+        Assertions.assertArrayEquals(a.i, a2.i);
+        Assertions.assertArrayEquals(a.l, a2.l);
+        Assertions.assertArrayEquals(a.d, a2.d);
+        Assertions.assertArrayEquals(a.f, a2.f);
     }
 
     @Test
@@ -220,10 +165,12 @@ public class SharkSerializationTest {
         a.c2 = c2;
         a.c3 = c;
         a.c4 = c2;
+        a.c5 = c2;
         SimpleSharedReferenceClass a2 = writeAndRead(serialization, a);
         Assertions.assertNotSame(a2.c, a2.c2);
         Assertions.assertSame(a2.c, a2.c3);
         Assertions.assertSame(a2.c2, a2.c4);
+        Assertions.assertNotSame(a2.c4, a2.c5);
         Assertions.assertEquals(a2.c.i, 12);
         Assertions.assertEquals(a2.c2.i, 13);
     }
@@ -261,6 +208,40 @@ public class SharkSerializationTest {
         SharedUndefinedFieldClass a2 = writeAndRead(serialization, a);
         Assertions.assertSame(ImplementationClass.class, a2.a.getClass());
         Assertions.assertSame(a2.a, a2.b);
+    }
+
+    @Test
+    public void configuredArraysClassTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.register(ConfiguredArraysClass.class, ConfiguredArraysClass::new);
+        serialization.registerCollection(AbstractType[].class, AbstractType[]::new);
+        serialization.registerCollection(AbstractType[][].class, AbstractType[][]::new);
+        serialization.register(ImplementationClass.class, ImplementationClass::new);
+        serialization.initialize();
+        ImplementationClass c = new ImplementationClass();
+        ImplementationClass c2 = new ImplementationClass();
+        AbstractType[] array1 = new AbstractType[] { c, c, null, c2 };
+        AbstractType[] array2 = new AbstractType[] { null, c };
+        AbstractType[][] array2d = new AbstractType[][] { array1, array2 };
+        ConfiguredArraysClass object = new ConfiguredArraysClass();
+        object.array2d = array2d;
+        object.array2dCopy = array2d;
+        object.arrayCopy = array2;
+        object.arrayNotCopy = array1;
+
+        ConfiguredArraysClass object2 = writeAndRead(serialization, object);
+        Assertions.assertEquals(2, object2.array2d.length);
+        Assertions.assertEquals(4, object2.array2d[0].length);
+        Assertions.assertEquals(2, object2.array2d[1].length);
+        Assertions.assertEquals(ImplementationClass.class, object2.array2d[0][0].getClass());
+        Assertions.assertSame(object2.array2d[0][0], object2.array2d[0][1]);
+        Assertions.assertNull(object2.array2d[0][2]);
+        Assertions.assertEquals(ImplementationClass.class, object2.array2d[0][3].getClass());
+        Assertions.assertNotSame(object2.array2d[0][0], object2.array2d[0][3]);
+        Assertions.assertSame(object2.array2d, object2.array2dCopy);
+        Assertions.assertSame(object2.array2d[1], object2.arrayCopy);
+        Assertions.assertNotSame(object2.arrayCopy, object2.arrayNotCopy);
+        Assertions.assertNotSame(object2.arrayCopy[1], object2.arrayNotCopy[1]);
     }
 
     @SuppressWarnings("unchecked")

@@ -3,6 +3,7 @@ package com.sharkhendrix.serialization.serializer;
 import java.nio.ByteBuffer;
 
 import com.sharkhendrix.serialization.ReferenceContext;
+import com.sharkhendrix.serialization.Serializer;
 
 public class SharedReferenceSerializer<T> implements Serializer<T> {
 

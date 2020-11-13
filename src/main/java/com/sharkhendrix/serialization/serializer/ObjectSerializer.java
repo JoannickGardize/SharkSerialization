@@ -9,21 +9,20 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.sharkhendrix.serialization.SerializationContext;
-import com.sharkhendrix.serialization.SharedReference;
+import com.sharkhendrix.serialization.Serializer;
 import com.sharkhendrix.serialization.SharkSerializationException;
-import com.sharkhendrix.serialization.UndefinedType;
-import com.sharkhendrix.serialization.serializer.field.FieldRecord;
-import com.sharkhendrix.serialization.serializer.field.ObjectFieldRecord;
-import com.sharkhendrix.serialization.serializer.field.PrimitiveFieldRecords;
+import com.sharkhendrix.serialization.serializer.field.FieldAccessor;
+import com.sharkhendrix.serialization.serializer.field.ObjectFieldAccessor;
+import com.sharkhendrix.serialization.serializer.field.PrimitiveFieldAccessors;
 import com.sharkhendrix.serialization.util.ReflectionUtils;
 
 public class ObjectSerializer<T> implements Serializer<T> {
 
-    private Class<? extends T> type;
+    private Class<T> type;
     private Supplier<? extends T> newInstanceSupplier;
-    private FieldRecord[] fieldRecords;
+    private FieldAccessor[] fieldRecords;
 
-    public <U extends T> ObjectSerializer(Class<U> type, Supplier<U> newInstanceSupplier) {
+    public ObjectSerializer(Class<T> type, Supplier<? extends T> newInstanceSupplier) {
         this.type = type;
         this.newInstanceSupplier = newInstanceSupplier;
     }
@@ -34,18 +33,18 @@ public class ObjectSerializer<T> implements Serializer<T> {
             throw new IllegalArgumentException("Cannot initialize ObjectSerializer for the class " + type.getName() + ", it must be a regular class");
         }
         Class<?> currentClass = type;
-        List<FieldRecord> fieldRecordList = new ArrayList<>();
+        List<FieldAccessor> fieldRecordList = new ArrayList<>();
         while (currentClass != Object.class) {
             registerFields(context, currentClass, fieldRecordList);
             currentClass = currentClass.getSuperclass();
         }
-        fieldRecords = fieldRecordList.toArray(FieldRecord[]::new);
+        fieldRecords = fieldRecordList.toArray(FieldAccessor[]::new);
     }
 
     @Override
     public void write(ByteBuffer buffer, T object) {
         try {
-            for (FieldRecord record : fieldRecords) {
+            for (FieldAccessor record : fieldRecords) {
                 record.writeField(buffer, object);
             }
         } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -58,7 +57,7 @@ public class ObjectSerializer<T> implements Serializer<T> {
         T object = newInstanceSupplier.get();
         intermediateConsumer.accept(object);
         try {
-            for (FieldRecord record : fieldRecords) {
+            for (FieldAccessor record : fieldRecords) {
                 record.readField(buffer, object);
             }
         } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -73,27 +72,16 @@ public class ObjectSerializer<T> implements Serializer<T> {
         });
     }
 
-    private void registerFields(SerializationContext context, Class<?> currentClass, List<FieldRecord> fieldRecordList) {
+    private void registerFields(SerializationContext context, Class<?> currentClass, List<FieldAccessor> fieldRecordList) {
         for (Field field : currentClass.getDeclaredFields()) {
             if (Modifier.isTransient(field.getModifiers())) {
                 continue;
             }
             if (field.getType().isPrimitive()) {
-                fieldRecordList.add(PrimitiveFieldRecords.create(field));
-            } else if (field.isAnnotationPresent(SharedReference.class)) {
-                fieldRecordList.add(new ObjectFieldRecord(field, new SharedReferenceSerializer<>(context.getReferenceContext(), createSerializer(context, field))));
+                fieldRecordList.add(PrimitiveFieldAccessors.get(field));
             } else {
-                fieldRecordList.add(new ObjectFieldRecord(field, createSerializer(context, field)));
+                fieldRecordList.add(new ObjectFieldAccessor(field, FieldSerializerFactory.get(field, context)));
             }
         }
     }
-
-    private Serializer<?> createSerializer(SerializationContext context, Field field) {
-        if (field.isAnnotationPresent(UndefinedType.class)) {
-            return new UndefinedTypeSerializer<>(context);
-        } else {
-            return context.getSerializer(field.getType());
-        }
-    }
-
 }

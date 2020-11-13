@@ -3,11 +3,11 @@ package com.sharkhendrix.serialization.serializer.field;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
-public abstract class FieldRecord {
+public abstract class FieldAccessor {
 
     protected Field field;
 
-    public FieldRecord(Field field) {
+    public FieldAccessor(Field field) {
         this.field = field;
         field.setAccessible(true);
     }

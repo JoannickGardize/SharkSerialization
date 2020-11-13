@@ -1,7 +1,5 @@
 package com.sharkhendrix.serialization;
 
-import com.sharkhendrix.serialization.serializer.Serializer;
-
 class SerializerRecord<T> {
 
 	private int id;

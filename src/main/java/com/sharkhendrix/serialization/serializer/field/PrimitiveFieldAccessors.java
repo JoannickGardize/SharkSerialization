@@ -6,27 +6,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class PrimitiveFieldRecords {
+public class PrimitiveFieldAccessors {
 
-    private static Map<Class<?>, Function<Field, FieldRecord>> fieldRecordSuppliers = new HashMap<>();
+    private static Map<Class<?>, Function<Field, FieldAccessor>> fieldRecordSuppliers = new HashMap<>();
 
     static {
-        fieldRecordSuppliers.put(byte.class, PrimitiveFieldRecords::byteFieldRecord);
-        fieldRecordSuppliers.put(char.class, PrimitiveFieldRecords::charFieldRecord);
-        fieldRecordSuppliers.put(boolean.class, PrimitiveFieldRecords::booleanFieldRecord);
-        fieldRecordSuppliers.put(short.class, PrimitiveFieldRecords::shortFieldRecord);
-        fieldRecordSuppliers.put(int.class, PrimitiveFieldRecords::intFieldRecord);
-        fieldRecordSuppliers.put(long.class, PrimitiveFieldRecords::longFieldRecord);
-        fieldRecordSuppliers.put(float.class, PrimitiveFieldRecords::floatFieldRecord);
-        fieldRecordSuppliers.put(double.class, PrimitiveFieldRecords::doubleFieldRecord);
+        fieldRecordSuppliers.put(byte.class, PrimitiveFieldAccessors::byteFieldAccesor);
+        fieldRecordSuppliers.put(char.class, PrimitiveFieldAccessors::charFieldAccessor);
+        fieldRecordSuppliers.put(boolean.class, PrimitiveFieldAccessors::booleanFieldAccessor);
+        fieldRecordSuppliers.put(short.class, PrimitiveFieldAccessors::shortFieldAccessor);
+        fieldRecordSuppliers.put(int.class, PrimitiveFieldAccessors::intFieldAccessor);
+        fieldRecordSuppliers.put(long.class, PrimitiveFieldAccessors::longFieldAccessor);
+        fieldRecordSuppliers.put(float.class, PrimitiveFieldAccessors::floatFieldAccessor);
+        fieldRecordSuppliers.put(double.class, PrimitiveFieldAccessors::doubleFieldAccessor);
     }
 
-    public static FieldRecord create(Field field) {
+    public static FieldAccessor get(Field field) {
         return fieldRecordSuppliers.get(field.getType()).apply(field);
     }
 
-    private static FieldRecord byteFieldRecord(Field field) {
-        return new FieldRecord(field) {
+    private static FieldAccessor byteFieldAccesor(Field field) {
+        return new FieldAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -40,8 +40,8 @@ public class PrimitiveFieldRecords {
         };
     }
 
-    private static FieldRecord charFieldRecord(Field field) {
-        return new FieldRecord(field) {
+    private static FieldAccessor charFieldAccessor(Field field) {
+        return new FieldAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -55,8 +55,8 @@ public class PrimitiveFieldRecords {
         };
     }
 
-    private static FieldRecord booleanFieldRecord(Field field) {
-        return new FieldRecord(field) {
+    private static FieldAccessor booleanFieldAccessor(Field field) {
+        return new FieldAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -70,8 +70,8 @@ public class PrimitiveFieldRecords {
         };
     }
 
-    private static FieldRecord shortFieldRecord(Field field) {
-        return new FieldRecord(field) {
+    private static FieldAccessor shortFieldAccessor(Field field) {
+        return new FieldAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -85,8 +85,8 @@ public class PrimitiveFieldRecords {
         };
     }
 
-    private static FieldRecord intFieldRecord(Field field) {
-        return new FieldRecord(field) {
+    private static FieldAccessor intFieldAccessor(Field field) {
+        return new FieldAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -100,8 +100,8 @@ public class PrimitiveFieldRecords {
         };
     }
 
-    public static FieldRecord longFieldRecord(Field field) {
-        return new FieldRecord(field) {
+    public static FieldAccessor longFieldAccessor(Field field) {
+        return new FieldAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -115,8 +115,8 @@ public class PrimitiveFieldRecords {
         };
     }
 
-    private static FieldRecord floatFieldRecord(Field field) {
-        return new FieldRecord(field) {
+    private static FieldAccessor floatFieldAccessor(Field field) {
+        return new FieldAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -130,8 +130,8 @@ public class PrimitiveFieldRecords {
         };
     }
 
-    private static FieldRecord doubleFieldRecord(Field field) {
-        return new FieldRecord(field) {
+    private static FieldAccessor doubleFieldAccessor(Field field) {
+        return new FieldAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {

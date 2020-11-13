@@ -2,8 +2,6 @@ package com.sharkhendrix.serialization;
 
 import java.nio.ByteBuffer;
 
-import com.sharkhendrix.serialization.serializer.Serializer;
-
 public interface SerializationContext {
 
     <T> void register(Class<T> type, Serializer<? extends T> serializer);

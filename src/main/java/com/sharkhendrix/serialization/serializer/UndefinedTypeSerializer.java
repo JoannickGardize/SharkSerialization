@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import com.sharkhendrix.serialization.SerializationContext;
+import com.sharkhendrix.serialization.Serializer;
 
 public class UndefinedTypeSerializer<T> implements Serializer<T> {
 

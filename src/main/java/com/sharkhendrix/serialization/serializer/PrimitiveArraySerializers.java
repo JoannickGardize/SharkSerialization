@@ -2,7 +2,12 @@ package com.sharkhendrix.serialization.serializer;
 
 import java.nio.ByteBuffer;
 
+import com.sharkhendrix.serialization.Serializer;
+
 public class PrimitiveArraySerializers {
+
+    private PrimitiveArraySerializers() {
+    }
 
     public static class ByteArraySerializer implements Serializer<byte[]> {
 
