@@ -66,4 +66,4 @@ To improve efficiency, SharkSerialization considers by default the graph to be s
 - Fields declared type and actual value always matches a registered class and serializer pair, and are never null.
 - There is no multiple references to the same instance.
 
-Fields which does not respect one, the other, or both of these conditions must be annotated with `@UndefinedType` and / or `@SharedReference`. Each of these annotions adds 2 bytes of overhead each time the field has to be serialized. Shared references are serialized only one time, other references will only takes 2 bytes.
+Fields which does not respect one, the other, or both of these conditions must be annotated with `@UndefinedType` and / or `@SharedReference`. Each of these annotations adds 2 bytes of overhead each time the field has to be serialized. Shared references are serialized only one time, other references will only takes 2 bytes.
