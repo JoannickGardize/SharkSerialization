@@ -2,6 +2,7 @@
 
 - [X] Object & primitives serializarion
 - [ ] Collections & Maps serialization
+- [ ] Getter/Setter Serializer alternative
 - [ ] Synchronization framework
 
 # SharkSerialization
