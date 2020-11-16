@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 public class PrimitiveFieldAccessors {
 
-    private static Map<Class<?>, Function<Field, FieldAccessor>> fieldRecordSuppliers = new HashMap<>();
+    private static Map<Class<?>, Function<Field, AttributeAccessor>> fieldRecordSuppliers = new HashMap<>();
 
     static {
         fieldRecordSuppliers.put(byte.class, PrimitiveFieldAccessors::byteFieldAccesor);
@@ -21,12 +21,12 @@ public class PrimitiveFieldAccessors {
         fieldRecordSuppliers.put(double.class, PrimitiveFieldAccessors::doubleFieldAccessor);
     }
 
-    public static FieldAccessor get(Field field) {
+    public static AttributeAccessor get(Field field) {
         return fieldRecordSuppliers.get(field.getType()).apply(field);
     }
 
-    private static FieldAccessor byteFieldAccesor(Field field) {
-        return new FieldAccessor(field) {
+    private static AttributeAccessor byteFieldAccesor(Field field) {
+        return new AttributeAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -40,8 +40,8 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor charFieldAccessor(Field field) {
-        return new FieldAccessor(field) {
+    private static AttributeAccessor charFieldAccessor(Field field) {
+        return new AttributeAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -55,8 +55,8 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor booleanFieldAccessor(Field field) {
-        return new FieldAccessor(field) {
+    private static AttributeAccessor booleanFieldAccessor(Field field) {
+        return new AttributeAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -70,8 +70,8 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor shortFieldAccessor(Field field) {
-        return new FieldAccessor(field) {
+    private static AttributeAccessor shortFieldAccessor(Field field) {
+        return new AttributeAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -85,8 +85,8 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor intFieldAccessor(Field field) {
-        return new FieldAccessor(field) {
+    private static AttributeAccessor intFieldAccessor(Field field) {
+        return new AttributeAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -100,8 +100,8 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    public static FieldAccessor longFieldAccessor(Field field) {
-        return new FieldAccessor(field) {
+    public static AttributeAccessor longFieldAccessor(Field field) {
+        return new AttributeAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -115,8 +115,8 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor floatFieldAccessor(Field field) {
-        return new FieldAccessor(field) {
+    private static AttributeAccessor floatFieldAccessor(Field field) {
+        return new AttributeAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
@@ -130,8 +130,8 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor doubleFieldAccessor(Field field) {
-        return new FieldAccessor(field) {
+    private static AttributeAccessor doubleFieldAccessor(Field field) {
+        return new AttributeAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {

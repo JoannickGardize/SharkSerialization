@@ -2,6 +2,8 @@ package com.sharkhendrix.serialization;
 
 import java.nio.ByteBuffer;
 
+import com.sharkhendrix.serialization.factory.FieldSerializerFactory;
+
 public interface SerializationContext {
 
     <T> void register(Class<T> type, Serializer<? extends T> serializer);
@@ -13,6 +15,8 @@ public interface SerializationContext {
     Serializer<?> readType(ByteBuffer buffer);
 
     ReferenceContext getReferenceContext();
+
+    FieldSerializerFactory getFieldSerializerFactory();
 
     /**
      * Write the full graph of the object o. Keeps the actual reference context.
@@ -26,7 +30,8 @@ public interface SerializationContext {
 
     /**
      * <p>
-     * Read the full graph of the object o. Keeps the actual reference context.
+     * Read the full graph of the object in this buffer. Keeps the actual reference
+     * context.
      * 
      * @param buffer
      * @return
@@ -52,7 +57,8 @@ public interface SerializationContext {
 
     /**
      * <p>
-     * Read the full graph of the object o with a new reference context.
+     * Read the full graph of the object in this buffer with a new reference
+     * context.
      * <p>
      * This default implementation does not support internal reference of the object
      * o.

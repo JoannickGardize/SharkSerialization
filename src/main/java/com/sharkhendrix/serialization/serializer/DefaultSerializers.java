@@ -6,9 +6,9 @@ import java.nio.charset.StandardCharsets;
 import com.sharkhendrix.serialization.SerializationContext;
 import com.sharkhendrix.serialization.Serializer;
 
-public class DefaultsSerializers {
+public class DefaultSerializers {
 
-    private DefaultsSerializers() {
+    private DefaultSerializers() {
     }
 
     public static void registerAll(SerializationContext serialization) {

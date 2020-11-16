@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization;
+package com.sharkhendrix.serialization.annotation;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

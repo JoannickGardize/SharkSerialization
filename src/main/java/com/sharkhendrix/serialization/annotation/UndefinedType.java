@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization;
+package com.sharkhendrix.serialization.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

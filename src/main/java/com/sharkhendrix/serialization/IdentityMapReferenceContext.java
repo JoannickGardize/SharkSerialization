@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-public class MapReferenceContext implements ReferenceContext {
+public class IdentityMapReferenceContext implements ReferenceContext {
 
 	private Map<Object, Short> idByObject = new IdentityHashMap<>();
 	private Map<Short, Object> objectById = new HashMap<>();

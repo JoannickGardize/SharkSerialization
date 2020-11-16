@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization;
+package com.sharkhendrix.serialization.annotation;
 
 public @interface MapComplexity {
 

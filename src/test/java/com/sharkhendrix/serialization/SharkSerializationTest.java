@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import com.sharkhendrix.serialization.SharkSerializationTestModel.A;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.AbstractType;
@@ -25,6 +27,11 @@ import com.sharkhendrix.serialization.SharkSerializationTestModel.UndefinedField
 import com.sharkhendrix.serialization.SharkSerializationTestModel.WrapperClass;
 
 public class SharkSerializationTest {
+
+    @BeforeEach
+    public void log(TestInfo info) {
+        System.out.println(info.getDisplayName());
+    }
 
     @Test
     public void primitivesSerializationTest() {
@@ -135,7 +142,7 @@ public class SharkSerializationTest {
     @Test
     public void registerInterfaceFailTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(List.class, ArrayList::new);
+        serialization.register(List.class, () -> new ArrayList<>());
         Assertions.assertThrows(IllegalArgumentException.class, serialization::initialize);
     }
 
@@ -214,8 +221,8 @@ public class SharkSerializationTest {
     public void configuredArraysClassTest() {
         SharkSerialization serialization = new SharkSerialization();
         serialization.register(ConfiguredArraysClass.class, ConfiguredArraysClass::new);
-        serialization.registerCollection(AbstractType[].class, AbstractType[]::new);
-        serialization.registerCollection(AbstractType[][].class, AbstractType[][]::new);
+        serialization.registerConstructor(AbstractType[].class, AbstractType[]::new);
+        serialization.registerConstructor(AbstractType[][].class, AbstractType[][]::new);
         serialization.register(ImplementationClass.class, ImplementationClass::new);
         serialization.initialize();
         ImplementationClass c = new ImplementationClass();
@@ -249,6 +256,7 @@ public class SharkSerializationTest {
         ByteBuffer bb = ByteBuffer.allocate(65536);
         serialization.write(bb, initial);
         bb.flip();
+        System.out.println(bb.limit());
         T object = (T) serialization.read(bb);
         return object;
     }

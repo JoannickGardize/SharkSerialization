@@ -1,5 +1,9 @@
 package com.sharkhendrix.serialization;
 
+import com.sharkhendrix.serialization.annotation.ElementsConfiguration;
+import com.sharkhendrix.serialization.annotation.SharedReference;
+import com.sharkhendrix.serialization.annotation.UndefinedType;
+
 public class SharkSerializationTestModel {
     public static class PrimitiveClass {
         char c;
@@ -114,20 +118,20 @@ public class SharkSerializationTestModel {
     public static class ConfiguredArraysClass {
 
         @SharedReference
-        @CollectionConfiguration(sharedReference = true)
-        @CollectionConfiguration(sharedReference = true, undefinedType = true)
+        @ElementsConfiguration(sharedReference = true)
+        @ElementsConfiguration(sharedReference = true, undefinedType = true)
         AbstractType[][] array2d;
 
         @SharedReference
-        @CollectionConfiguration(sharedReference = true)
-        @CollectionConfiguration(sharedReference = true, undefinedType = true)
+        @ElementsConfiguration(sharedReference = true)
+        @ElementsConfiguration(sharedReference = true, undefinedType = true)
         AbstractType[][] array2dCopy;
 
         @SharedReference
-        @CollectionConfiguration(sharedReference = true, undefinedType = true)
+        @ElementsConfiguration(sharedReference = true, undefinedType = true)
         AbstractType[] arrayCopy;
 
-        @CollectionConfiguration(sharedReference = false, undefinedType = true)
+        @ElementsConfiguration(sharedReference = false, undefinedType = true)
         AbstractType[] arrayNotCopy;
 
     }

@@ -1,79 +1,82 @@
 package com.sharkhendrix.serialization;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
-import com.sharkhendrix.serialization.serializer.ArrayInstanceSerializer;
-import com.sharkhendrix.serialization.serializer.DefaultsSerializers;
+import com.sharkhendrix.serialization.factory.FieldSerializerFactory;
+import com.sharkhendrix.serialization.factory.FieldSerializerFactoryDefaultConfigurator;
+import com.sharkhendrix.serialization.serializer.DefaultSerializers;
 import com.sharkhendrix.serialization.serializer.ObjectSerializer;
+import com.sharkhendrix.serialization.util.Record;
+import com.sharkhendrix.serialization.util.RecordSet;
 
 public class SharkSerialization implements SerializationContext {
 
-    private ReferenceContext referenceContext = new MapReferenceContext();
+    private ReferenceContext referenceContext = new IdentityMapReferenceContext();
 
-    private List<SerializerRecord<?>> serializersById = new ArrayList<>();
-    private Map<Class<?>, SerializerRecord<?>> serializersByClass = new HashMap<>();
+    private RecordSet<Class<?>, Serializer<?>> serializerRecordSet = new RecordSet<>();
 
-    private SerializerRecord<?> nullSerializerRecord;
+    private Record<Serializer<?>> nullSerializerRecord;
+
+    private FieldSerializerFactory fieldSerializerFactory = new FieldSerializerFactory();
 
     public SharkSerialization() {
-        DefaultsSerializers.registerAll(this);
-        nullSerializerRecord = serializersByClass.get(null);
+        DefaultSerializers.registerAll(this);
+        nullSerializerRecord = serializerRecordSet.get(null);
+        new FieldSerializerFactoryDefaultConfigurator(this).configure();
     }
 
-    public <T> void register(Class<T> type, Supplier<? extends T> newInstanceSupplier) {
-        register(type, new ObjectSerializer<>(type, newInstanceSupplier));
+    public <T> void register(Class<T> type, Supplier<? extends T> constructor) {
+        register(type, new ObjectSerializer<>(type, constructor));
     }
 
-    public <T> void registerCollection(Class<T> type, IntFunction<? extends T> newInstanceSupplier) {
-        register(type, new ArrayInstanceSerializer<>(newInstanceSupplier));
+    public <T> void registerConstructor(Class<T> type, IntFunction<? extends T> constructor) {
+        fieldSerializerFactory.registerSizeableConstructor(type, constructor);
     }
 
     @Override
     public <T> void register(Class<T> type, Serializer<? extends T> serializer) {
-        SerializerRecord<? extends T> record = new SerializerRecord<>(serializersById.size(), serializer);
-        serializersById.add(record);
-        serializersByClass.put(type, record);
+        serializerRecordSet.register(type, serializer);
     }
 
     public void initialize() {
-        serializersByClass.forEach((k, v) -> v.getSerializer().initialize(this));
+        serializerRecordSet.forEachValues(s -> s.initialize(this));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> Serializer<? extends T> getSerializer(Class<T> type) {
-        return (Serializer<? extends T>) serializersByClass.get(type).getSerializer();
+        Record<Serializer<?>> serializerRecord = serializerRecordSet.get(type);
+        if (serializerRecord == null) {
+            throw new SharkSerializationException("No serializer recorded for class : " + type.getName());
+        }
+        return (Serializer<? extends T>) serializerRecord.getElement();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> Serializer<T> writeType(ByteBuffer buffer, T o) {
-        SerializerRecord<T> serializerRecord;
+        Record<Serializer<?>> serializerRecord;
         if (o == null) {
-            serializerRecord = (SerializerRecord<T>) nullSerializerRecord;
+            serializerRecord = nullSerializerRecord;
         } else {
-            serializerRecord = (SerializerRecord<T>) serializersByClass.get(o.getClass());
+            serializerRecord = serializerRecordSet.get(o.getClass());
         }
         if (serializerRecord == null) {
             throw new IllegalStateException("Class not registered: " + o.getClass().getName());
         }
         buffer.putShort((short) serializerRecord.getId());
-        return serializerRecord.getSerializer();
+        return (Serializer<T>) serializerRecord.getElement();
     }
 
     @Override
     public Serializer<?> readType(ByteBuffer buffer) {
         int id = buffer.getShort();
-        if (id < 0 || id >= serializersById.size()) {
-            throw new IllegalStateException("Unknown register id: " + id);
+        if (id < 0 || id >= serializerRecordSet.size()) {
+            throw new SharkSerializationException("Unknown register id: " + id);
         }
-        return serializersById.get(id).getSerializer();
+        return serializerRecordSet.get(id).getElement();
     }
 
     public void setReferenceContext(ReferenceContext referenceContext) {
@@ -85,4 +88,8 @@ public class SharkSerialization implements SerializationContext {
         return referenceContext;
     }
 
+    @Override
+    public FieldSerializerFactory getFieldSerializerFactory() {
+        return fieldSerializerFactory;
+    }
 }

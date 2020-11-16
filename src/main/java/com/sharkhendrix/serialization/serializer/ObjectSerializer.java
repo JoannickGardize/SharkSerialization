@@ -11,8 +11,8 @@ import java.util.function.Supplier;
 import com.sharkhendrix.serialization.SerializationContext;
 import com.sharkhendrix.serialization.Serializer;
 import com.sharkhendrix.serialization.SharkSerializationException;
+import com.sharkhendrix.serialization.serializer.field.AttributeAccessor;
 import com.sharkhendrix.serialization.serializer.field.FieldAccessor;
-import com.sharkhendrix.serialization.serializer.field.ObjectFieldAccessor;
 import com.sharkhendrix.serialization.serializer.field.PrimitiveFieldAccessors;
 import com.sharkhendrix.serialization.util.ReflectionUtils;
 
@@ -20,7 +20,7 @@ public class ObjectSerializer<T> implements Serializer<T> {
 
     private Class<T> type;
     private Supplier<? extends T> newInstanceSupplier;
-    private FieldAccessor[] fieldRecords;
+    private AttributeAccessor[] fieldRecords;
 
     public ObjectSerializer(Class<T> type, Supplier<? extends T> newInstanceSupplier) {
         this.type = type;
@@ -33,18 +33,18 @@ public class ObjectSerializer<T> implements Serializer<T> {
             throw new IllegalArgumentException("Cannot initialize ObjectSerializer for the class " + type.getName() + ", it must be a regular class");
         }
         Class<?> currentClass = type;
-        List<FieldAccessor> fieldRecordList = new ArrayList<>();
+        List<AttributeAccessor> fieldRecordList = new ArrayList<>();
         while (currentClass != Object.class) {
             registerFields(context, currentClass, fieldRecordList);
             currentClass = currentClass.getSuperclass();
         }
-        fieldRecords = fieldRecordList.toArray(FieldAccessor[]::new);
+        fieldRecords = fieldRecordList.toArray(AttributeAccessor[]::new);
     }
 
     @Override
     public void write(ByteBuffer buffer, T object) {
         try {
-            for (FieldAccessor record : fieldRecords) {
+            for (AttributeAccessor record : fieldRecords) {
                 record.writeField(buffer, object);
             }
         } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -57,7 +57,7 @@ public class ObjectSerializer<T> implements Serializer<T> {
         T object = newInstanceSupplier.get();
         intermediateConsumer.accept(object);
         try {
-            for (FieldAccessor record : fieldRecords) {
+            for (AttributeAccessor record : fieldRecords) {
                 record.readField(buffer, object);
             }
         } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -72,7 +72,7 @@ public class ObjectSerializer<T> implements Serializer<T> {
         });
     }
 
-    private void registerFields(SerializationContext context, Class<?> currentClass, List<FieldAccessor> fieldRecordList) {
+    private void registerFields(SerializationContext context, Class<?> currentClass, List<AttributeAccessor> fieldRecordList) {
         for (Field field : currentClass.getDeclaredFields()) {
             if (Modifier.isTransient(field.getModifiers())) {
                 continue;
@@ -80,7 +80,7 @@ public class ObjectSerializer<T> implements Serializer<T> {
             if (field.getType().isPrimitive()) {
                 fieldRecordList.add(PrimitiveFieldAccessors.get(field));
             } else {
-                fieldRecordList.add(new ObjectFieldAccessor(field, FieldSerializerFactory.get(field, context)));
+                fieldRecordList.add(new FieldAccessor(field, context.getFieldSerializerFactory().build(field)));
             }
         }
     }
