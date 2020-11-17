@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+@Deprecated
 public class RecordSet<K, V> {
 
     private List<Record<V>> recordsById = new ArrayList<>();

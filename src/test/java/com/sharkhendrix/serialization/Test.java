@@ -1,15 +1,16 @@
 package com.sharkhendrix.serialization;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
 
 public class Test {
 
-    private List<Integer> attr;
+    private Map<Integer, String> attr;
 
     private Integer i;
 
     public static void main(String[] args) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-        System.out.println(((Class<?>) ((ParameterizedType) Test.class.getDeclaredField("attr").getGenericType()).getActualTypeArguments()[0]).getSimpleName());
+        System.out.println(Arrays.toString(((ParameterizedType) Test.class.getDeclaredField("attr").getGenericType()).getActualTypeArguments()));
     }
 }

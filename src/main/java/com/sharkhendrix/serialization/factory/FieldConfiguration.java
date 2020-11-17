@@ -1,8 +1,15 @@
 package com.sharkhendrix.serialization.factory;
 
 import java.lang.reflect.Field;
-import java.util.function.UnaryOperator;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.lang.model.type.NullType;
+
+import com.sharkhendrix.serialization.SharkSerializationException;
+import com.sharkhendrix.serialization.annotation.ConcreteType;
 import com.sharkhendrix.serialization.annotation.ElementsConfiguration;
 import com.sharkhendrix.serialization.annotation.ElementsConfigurationGroup;
 import com.sharkhendrix.serialization.annotation.SharedReference;
@@ -21,30 +28,48 @@ public class FieldConfiguration {
     }
 
     public FieldConfiguration(Field field) {
-        this(field, t -> null);
-    }
-
-    public FieldConfiguration(Field field, UnaryOperator<Class<?>> componentTypeGetter) {
-        type = field.getType();
+        ConcreteType concreteType = field.getAnnotation(ConcreteType.class);
+        if (concreteType != null) {
+            type = concreteType.value();
+        } else {
+            type = field.getType();
+        }
         sharedReference = field.isAnnotationPresent(SharedReference.class);
         undefinedType = field.isAnnotationPresent(UndefinedType.class);
-        FieldConfiguration currentNode = this;
-        Class<?> componentType = componentTypeGetter.apply(currentNode.type);
-        int configurationIndex = 0;
-        ElementsConfiguration[] elementConfigurations = getElementsConfigurations(field);
-        while (componentType != null) {
+    }
+
+    public static FieldConfiguration forArray(Field field) {
+        return forArrayOrCollection(field, getDeclaredTypesForArray(field));
+    }
+
+    public static FieldConfiguration forCollection(Field field) {
+        return forArrayOrCollection(field, getDeclaredTypesForCollection(field));
+    }
+
+    public static FieldConfiguration forArrayOrCollection(Field field, Class<?>[] declaredTypes) {
+        FieldConfiguration configuration = new FieldConfiguration(field);
+        ElementsConfiguration[] elementsConfigurations = getElementsConfigurations(field);
+        FieldConfiguration currentNode = configuration;
+        for (int i = 0; i < declaredTypes.length || i < elementsConfigurations.length; i++) {
             FieldConfiguration nextNode = new FieldConfiguration();
-            nextNode.type = componentType;
-            if (configurationIndex < elementConfigurations.length) {
-                ElementsConfiguration elementsConfiguration = elementConfigurations[configurationIndex];
+            if (i < declaredTypes.length) {
+                nextNode.type = declaredTypes[i];
+            }
+            if (i < elementsConfigurations.length) {
+                ElementsConfiguration elementsConfiguration = elementsConfigurations[i];
                 nextNode.sharedReference = elementsConfiguration.sharedReference();
                 nextNode.undefinedType = elementsConfiguration.undefinedType();
+                if (elementsConfiguration.type() != NullType.class) {
+                    nextNode.type = elementsConfiguration.type();
+                }
+            }
+            if (nextNode.type == null && nextNode.undefinedType == false) {
+                throw new SharkSerializationException("No defined type for a sub-element the field " + field);
             }
             currentNode.next = nextNode;
             currentNode = nextNode;
-            componentType = componentTypeGetter.apply(currentNode.type);
-            configurationIndex++;
         }
+        return configuration;
     }
 
     public Class<?> getType() {
@@ -83,7 +108,7 @@ public class FieldConfiguration {
         this.undefinedType = undefinedType;
     }
 
-    private ElementsConfiguration[] getElementsConfigurations(Field field) {
+    private static ElementsConfiguration[] getElementsConfigurations(Field field) {
         ElementsConfigurationGroup elementsConfigurationGroup = field.getAnnotation(ElementsConfigurationGroup.class);
         if (elementsConfigurationGroup != null) {
             return elementsConfigurationGroup.value();
@@ -93,5 +118,29 @@ public class FieldConfiguration {
             return new ElementsConfiguration[] { elementsConfiguration };
         }
         return new ElementsConfiguration[0];
+    }
+
+    private static Class<?>[] getDeclaredTypesForArray(Field field) {
+        List<Class<?>> types = new ArrayList<>();
+        Class<?> type = field.getType().getComponentType();
+        while (type != null) {
+            types.add(type);
+            type = type.getComponentType();
+        }
+        return types.toArray(Class<?>[]::new);
+    }
+
+    private static Class<?>[] getDeclaredTypesForCollection(Field field) {
+        List<Class<?>> types = new ArrayList<>();
+        Type type = field.getGenericType();
+        while (type instanceof ParameterizedType) {
+            type = ((ParameterizedType) type).getActualTypeArguments()[0];
+            if (type instanceof Class) {
+                types.add((Class<?>) type);
+            } else {
+                types.add((Class<?>) ((ParameterizedType) type).getRawType());
+            }
+        }
+        return types.toArray(Class<?>[]::new);
     }
 }

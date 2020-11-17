@@ -13,11 +13,14 @@ import com.sharkhendrix.serialization.SharkSerializationTestModel.A;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.AbstractType;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.B;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.C;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.CollectionsClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.ConcreteTypeClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.ConfiguredArraysClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedReferenceClassA;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedReferenceClassB;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedReferenceWrapper;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.ImplementationClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.ParameterizedListClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.PrimitiveArrayClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.PrimitiveClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.SharedUndefinedFieldClass;
@@ -29,7 +32,7 @@ import com.sharkhendrix.serialization.SharkSerializationTestModel.WrapperClass;
 public class SharkSerializationTest {
 
     @BeforeEach
-    public void log(TestInfo info) {
+    public void before(TestInfo info) {
         System.out.println(info.getDisplayName());
     }
 
@@ -218,7 +221,7 @@ public class SharkSerializationTest {
     }
 
     @Test
-    public void configuredArraysClassTest() {
+    public void configuredArraysTest() {
         SharkSerialization serialization = new SharkSerialization();
         serialization.register(ConfiguredArraysClass.class, ConfiguredArraysClass::new);
         serialization.registerConstructor(AbstractType[].class, AbstractType[]::new);
@@ -249,6 +252,63 @@ public class SharkSerializationTest {
         Assertions.assertSame(object2.array2d[1], object2.arrayCopy);
         Assertions.assertNotSame(object2.arrayCopy, object2.arrayNotCopy);
         Assertions.assertNotSame(object2.arrayCopy[1], object2.arrayNotCopy[1]);
+    }
+
+    @Test
+    public void collectionsTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.register(CollectionsClass.class, CollectionsClass::new);
+        serialization.initialize();
+
+        CollectionsClass a = new CollectionsClass();
+        a.aCollection = new ArrayList<>();
+        a.aList = new ArrayList<>();
+        a.aCollection.add(1);
+        a.aCollection.add(42);
+        a.aList.add("test");
+        a.aList.add("test2");
+
+        CollectionsClass a2 = writeAndRead(serialization, a);
+
+        Assertions.assertEquals(a.aCollection, a2.aCollection);
+        Assertions.assertEquals(a.aList, a2.aList);
+    }
+
+    @Test
+    public void parameterizedListTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.register(Object.class, Object::new);
+        serialization.register(ParameterizedListClass.class, ParameterizedListClass::new);
+        serialization.initialize();
+
+        ParameterizedListClass object = new ParameterizedListClass();
+        List<Object> list = new ArrayList<>();
+        list.add(2);
+        list.add(null);
+        list.add("test");
+        object.the3DCollection = new ArrayList<>();
+        object.the3DCollection.add(list);
+        object.the3DCollectionCopy = object.the3DCollection;
+
+        ParameterizedListClass object2 = writeAndRead(serialization, object);
+
+        Assertions.assertEquals(object.the3DCollection, object2.the3DCollection);
+        Assertions.assertSame(object2.the3DCollection, object2.the3DCollectionCopy);
+    }
+
+    @Test
+    public void concreteTypeTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.register(ConcreteTypeClass.class, ConcreteTypeClass::new);
+        serialization.registerConstructor(Object[].class, Object[]::new);
+        serialization.initialize();
+
+        ConcreteTypeClass object = new ConcreteTypeClass();
+        object.o = new Object[] { "test", "42" };
+
+        ConcreteTypeClass object2 = writeAndRead(serialization, object);
+
+        Assertions.assertArrayEquals((Object[]) object2.o, (Object[]) object.o);
     }
 
     @SuppressWarnings("unchecked")

@@ -1,5 +1,9 @@
 package com.sharkhendrix.serialization;
 
+import java.util.Collection;
+import java.util.List;
+
+import com.sharkhendrix.serialization.annotation.ConcreteType;
 import com.sharkhendrix.serialization.annotation.ElementsConfiguration;
 import com.sharkhendrix.serialization.annotation.SharedReference;
 import com.sharkhendrix.serialization.annotation.UndefinedType;
@@ -134,6 +138,28 @@ public class SharkSerializationTestModel {
         @ElementsConfiguration(sharedReference = false, undefinedType = true)
         AbstractType[] arrayNotCopy;
 
+    }
+
+    public static class CollectionsClass {
+        Collection<Integer> aCollection;
+        List<String> aList;
+    }
+
+    public static class ParameterizedListClass {
+        @SharedReference
+        @ElementsConfiguration
+        @ElementsConfiguration(undefinedType = true)
+        List<List<Object>> the3DCollection;
+
+        @SharedReference
+        Object the3DCollectionCopy;
+    }
+
+    public static class ConcreteTypeClass {
+
+        @ConcreteType(Object[].class)
+        @ElementsConfiguration(type = String.class)
+        Object o;
     }
 
 }

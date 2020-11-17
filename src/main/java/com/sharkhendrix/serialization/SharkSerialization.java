@@ -64,7 +64,7 @@ public class SharkSerialization implements SerializationContext {
             serializerRecord = serializerRecordSet.get(o.getClass());
         }
         if (serializerRecord == null) {
-            throw new IllegalStateException("Class not registered: " + o.getClass().getName());
+            throw new SharkSerializationException("Class not registered: " + o.getClass().getName());
         }
         buffer.putShort((short) serializerRecord.getId());
         return (Serializer<T>) serializerRecord.getElement();

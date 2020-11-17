@@ -74,6 +74,7 @@ public class ObjectSerializer<T> implements Serializer<T> {
 
     private void registerFields(SerializationContext context, Class<?> currentClass, List<AttributeAccessor> fieldRecordList) {
         for (Field field : currentClass.getDeclaredFields()) {
+            // TODO Make this part configurable
             if (Modifier.isTransient(field.getModifiers())) {
                 continue;
             }
