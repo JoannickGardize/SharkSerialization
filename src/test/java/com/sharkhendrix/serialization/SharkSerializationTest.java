@@ -11,6 +11,7 @@ import org.junit.jupiter.api.TestInfo;
 
 import com.sharkhendrix.serialization.SharkSerializationTestModel.A;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.AbstractType;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.ArrayCollectionHybridClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.B;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.C;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.CollectionsClass;
@@ -37,7 +38,7 @@ public class SharkSerializationTest {
     }
 
     @Test
-    public void primitivesSerializationTest() {
+    public void primitivesSerializationTest() throws NoSuchFieldException, SecurityException {
         SharkSerialization serialization = new SharkSerialization();
         serialization.register(PrimitiveClass.class, PrimitiveClass::new);
         serialization.initialize();
@@ -305,10 +306,31 @@ public class SharkSerializationTest {
 
         ConcreteTypeClass object = new ConcreteTypeClass();
         object.o = new Object[] { "test", "42" };
+        object.aString = "hello";
 
         ConcreteTypeClass object2 = writeAndRead(serialization, object);
 
         Assertions.assertArrayEquals((Object[]) object2.o, (Object[]) object.o);
+        Assertions.assertEquals(object2.aString, object.aString);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void arrayCollectionHybridClassTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.register(ArrayCollectionHybridClass.class, ArrayCollectionHybridClass::new);
+        serialization.registerConstructor(List[].class, List[]::new);
+        serialization.initialize();
+
+        ArrayCollectionHybridClass object = new ArrayCollectionHybridClass();
+        object.list = new ArrayList<>();
+        List<String> data = new ArrayList<>();
+        data.add("test");
+        object.list.add(new List[] { data });
+
+        ArrayCollectionHybridClass object2 = writeAndRead(serialization, object);
+
+        Assertions.assertEquals(object.list.get(0)[0], object2.list.get(0)[0]);
     }
 
     @SuppressWarnings("unchecked")

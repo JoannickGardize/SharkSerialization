@@ -8,24 +8,23 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 import com.sharkhendrix.serialization.Serializer;
-import com.sharkhendrix.serialization.util.Record;
-import com.sharkhendrix.serialization.util.RecordSet;
 
 public class FieldSerializerFactory {
 
-    private RecordSet<Class<?>, IntFunction<?>> sizeableConstructorRecordSet = new RecordSet<>();
+    private Map<Class<?>, IntFunction<?>> sizeableConstructorRecordSet = new HashMap<>();
 
     private Map<String, FieldSerializerFactoryEntry> caseEntries = new HashMap<>();
     private Function<FieldConfiguration, Serializer<?>> defaultBuilder;
     private Function<Field, FieldConfiguration> fieldConfigurator;
 
     public <T> void registerSizeableConstructor(Class<T> type, IntFunction<? extends T> constructor) {
-        sizeableConstructorRecordSet.register(type, constructor);
+
+        sizeableConstructorRecordSet.put(type, constructor);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> Record<IntFunction<? extends T>> getSizeableConstructorRecord(Class<T> type) {
-        return (Record) sizeableConstructorRecordSet.get(type);
+    @SuppressWarnings("unchecked")
+    public <T> IntFunction<? extends T> getSizeableConstructorRecord(Class<T> type) {
+        return (IntFunction<? extends T>) sizeableConstructorRecordSet.get(type);
     }
 
     public void addCase(String caseName, Predicate<FieldConfiguration> condition, Function<FieldConfiguration, Serializer<?>> builder) {

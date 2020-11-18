@@ -1,7 +1,6 @@
 package com.sharkhendrix.serialization.factory;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 
@@ -12,7 +11,6 @@ import com.sharkhendrix.serialization.serializer.ArraySerializer;
 import com.sharkhendrix.serialization.serializer.CollectionSerializer;
 import com.sharkhendrix.serialization.serializer.SharedReferenceSerializer;
 import com.sharkhendrix.serialization.serializer.UndefinedTypeSerializer;
-import com.sharkhendrix.serialization.util.Record;
 
 public class FieldSerializerFactoryDefaultConfigurator {
 
@@ -24,16 +22,9 @@ public class FieldSerializerFactoryDefaultConfigurator {
 
     public void configure() {
         FieldSerializerFactory factory = context.getFieldSerializerFactory();
-        factory.setFieldConfigurator(field -> {
-            if (field.getType().isArray() && !field.getType().getComponentType().isPrimitive()) {
-                return FieldConfiguration.forArray(field);
-            } else if (Collection.class.isAssignableFrom(List.class)) {
-                return FieldConfiguration.forCollection(field);
-            } else {
-                return new FieldConfiguration(field);
-            }
-        });
+        factory.setFieldConfigurator(FieldConfiguration::new);
         factory.setDefault(this::defaultBuilder);
+        // TODO use concrete type in condition
         factory.addCase("array", f -> f.getType() != null && f.getType().isArray() && !f.getType().getComponentType().isPrimitive(), this::nonPrimitiveArrayBuilder);
         factory.addCase("collection", f -> f.getType() != null && Collection.class.isAssignableFrom(f.getType()), this::collectionBuilder);
     }
@@ -70,15 +61,14 @@ public class FieldSerializerFactoryDefaultConfigurator {
         if (fieldConfiguration.isUndefinedType()) {
             throw new SharkSerializationException("UndefinedType is unsupported by the field factory for arrays and collections.");
         }
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        Record<IntFunction<?>> constructor = (Record) factory.getSizeableConstructorRecord(fieldConfiguration.getType());
+        IntFunction<?> constructor = factory.getSizeableConstructorRecord(fieldConfiguration.getType());
         if (constructor == null) {
             throw new SharkSerializationException("Missing registered constructor for array/collection " + fieldConfiguration.getType().getName());
         }
         if (fieldConfiguration.isSharedReference()) {
-            return new SharedReferenceSerializer<>(context.getReferenceContext(), serializerConstructor.apply(constructor.getElement(), factory.build(fieldConfiguration.next())));
+            return new SharedReferenceSerializer<>(context.getReferenceContext(), serializerConstructor.apply(constructor, factory.build(fieldConfiguration.next())));
         } else {
-            return serializerConstructor.apply(constructor.getElement(), factory.build(fieldConfiguration.next()));
+            return serializerConstructor.apply(constructor, factory.build(fieldConfiguration.next()));
         }
     }
 }

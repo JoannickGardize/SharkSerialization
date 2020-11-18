@@ -1,6 +1,5 @@
 package com.sharkhendrix.serialization.util;
 
-@Deprecated
 public class Record<T> {
 
     private int id;

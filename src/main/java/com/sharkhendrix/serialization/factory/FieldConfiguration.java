@@ -1,10 +1,7 @@
 package com.sharkhendrix.serialization.factory;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import javax.lang.model.type.NullType;
 
@@ -14,6 +11,7 @@ import com.sharkhendrix.serialization.annotation.ElementsConfiguration;
 import com.sharkhendrix.serialization.annotation.ElementsConfigurationGroup;
 import com.sharkhendrix.serialization.annotation.SharedReference;
 import com.sharkhendrix.serialization.annotation.UndefinedType;
+import com.sharkhendrix.serialization.util.ReflectionUtils;
 
 public class FieldConfiguration {
 
@@ -36,20 +34,18 @@ public class FieldConfiguration {
         }
         sharedReference = field.isAnnotationPresent(SharedReference.class);
         undefinedType = field.isAnnotationPresent(UndefinedType.class);
+        if (type.isArray() || Collection.class.isAssignableFrom(type)) {
+            appendElements(field);
+        }
     }
 
-    public static FieldConfiguration forArray(Field field) {
-        return forArrayOrCollection(field, getDeclaredTypesForArray(field));
-    }
-
-    public static FieldConfiguration forCollection(Field field) {
-        return forArrayOrCollection(field, getDeclaredTypesForCollection(field));
-    }
-
-    public static FieldConfiguration forArrayOrCollection(Field field, Class<?>[] declaredTypes) {
-        FieldConfiguration configuration = new FieldConfiguration(field);
+    private void appendElements(Field field) {
+        Class<?>[] declaredTypes = ReflectionUtils.getComponentTypeHierarchy(field);
         ElementsConfiguration[] elementsConfigurations = getElementsConfigurations(field);
-        FieldConfiguration currentNode = configuration;
+        FieldConfiguration currentNode = this;
+        if (declaredTypes.length == 0 && elementsConfigurations.length == 0) {
+            throw new SharkSerializationException("Undefined type for the elements of the array / collection field " + field);
+        }
         for (int i = 0; i < declaredTypes.length || i < elementsConfigurations.length; i++) {
             FieldConfiguration nextNode = new FieldConfiguration();
             if (i < declaredTypes.length) {
@@ -64,12 +60,11 @@ public class FieldConfiguration {
                 }
             }
             if (nextNode.type == null && nextNode.undefinedType == false) {
-                throw new SharkSerializationException("No defined type for a sub-element the field " + field);
+                throw new SharkSerializationException("Undefined type for a sub-element of the array / collection field " + field);
             }
             currentNode.next = nextNode;
             currentNode = nextNode;
         }
-        return configuration;
     }
 
     public Class<?> getType() {
@@ -120,27 +115,14 @@ public class FieldConfiguration {
         return new ElementsConfiguration[0];
     }
 
-    private static Class<?>[] getDeclaredTypesForArray(Field field) {
-        List<Class<?>> types = new ArrayList<>();
-        Class<?> type = field.getType().getComponentType();
-        while (type != null) {
-            types.add(type);
-            type = type.getComponentType();
-        }
-        return types.toArray(Class<?>[]::new);
-    }
+//    private static Class<?>[] getDeclaredTypesForArray(Class<?> arrayType) {
+//        List<Class<?>> types = new ArrayList<>();
+//        Class<?> type = arrayType.getComponentType();
+//        while (type != null) {
+//            types.add(type);
+//            type = type.getComponentType();
+//        }
+//        return types.toArray(Class<?>[]::new);
+//    }
 
-    private static Class<?>[] getDeclaredTypesForCollection(Field field) {
-        List<Class<?>> types = new ArrayList<>();
-        Type type = field.getGenericType();
-        while (type instanceof ParameterizedType) {
-            type = ((ParameterizedType) type).getActualTypeArguments()[0];
-            if (type instanceof Class) {
-                types.add((Class<?>) type);
-            } else {
-                types.add((Class<?>) ((ParameterizedType) type).getRawType());
-            }
-        }
-        return types.toArray(Class<?>[]::new);
-    }
 }

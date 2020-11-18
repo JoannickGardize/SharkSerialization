@@ -160,6 +160,13 @@ public class SharkSerializationTestModel {
         @ConcreteType(Object[].class)
         @ElementsConfiguration(type = String.class)
         Object o;
+
+        @ConcreteType(String.class)
+        Object aString;
+    }
+
+    public static class ArrayCollectionHybridClass {
+        List<List<String>[]> list;
     }
 
 }
