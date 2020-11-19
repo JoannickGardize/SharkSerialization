@@ -105,7 +105,7 @@ Let's read annotations line by line:
 
 Containers are treated specifically by the FieldSerializationFacotry (except for primitive arrays). They do not requires registration of serializers but requires registration of their constructors. Map references are binded by default with HashMap, and List with ArrayList. For any other array, collection or map types, call `SharkSerialization.registerConstructor(type, constructor)` to register them.
 
-##Default configurations
+## Default configurations
 
 By default, primitives, primitive wrappers, primitive arrays, strings, lists, and maps are configured by default:
 - Default registered serializers: Primitive Wrappers (Integer, Character...), primitive arrays (int[], char[]....), String.
