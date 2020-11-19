@@ -103,7 +103,7 @@ Let's read annotations line by line:
 
 #### Registered containers constructors
 
-Containers are treated specifically by the FieldSerializationFacotry (except for primitive arrays). They do not requires registration of serializers but requires registration of their constructors. Map references are binded by default with HashMap, and List with ArrayList. For any other array, collection or map types, call `SharkSerialization.registerConstructor(type, constructor)` to register them.
+Containers are treated specifically by the SerializationFacotry (except for primitive arrays). They do not requires registration of serializers but requires registration of their constructors. Map references are binded by default with HashMap, and List with ArrayList. For any other array, collection or map types, call `SharkSerialization.registerConstructor(type, constructor)` to register them.
 
 ## Default configurations
 
