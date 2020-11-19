@@ -1,6 +1,7 @@
 package com.sharkhendrix.serialization.util;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,8 @@ public class ReflectionUtilsTest {
 
     }
 
-    private List<List<List<String>[]>[][]> arrayOfListStorm;
+    @SuppressWarnings("unused")
+    private List<List<Map<Class<?>, String[]>>[][]> arrayListMapStorm;
 
     @ParameterizedTest
     @ValueSource(classes = { int.class, Integer.class, AnAnnototation.class, AnInterface.class, AnAbstractClass.class, AnEnum.class })
@@ -44,7 +46,19 @@ public class ReflectionUtilsTest {
 
     @Test
     public void getComponentTypeHierarchyTest() throws NoSuchFieldException, SecurityException {
-        Assertions.assertArrayEquals(new Class[] { List[][].class, List[].class, List.class, List[].class, List.class, String.class },
-                ReflectionUtils.getComponentTypeHierarchy(getClass().getDeclaredField("arrayOfListStorm")));
+        ComponentTypeHierarchy cth = ReflectionUtils.getComponentTypeHierarchy(getClass().getDeclaredField("arrayListMapStorm"));
+        Assertions.assertEquals(List.class, cth.getType());
+        Assertions.assertNull(cth.getKeys());
+        Assertions.assertNull(cth.getValues());
+        Assertions.assertEquals(List[][].class, cth.getElements().getType());
+        Assertions.assertNull(cth.getElements().getKeys());
+        Assertions.assertNull(cth.getElements().getValues());
+        Assertions.assertEquals(List[].class, cth.getElements().getElements().getType());
+        Assertions.assertEquals(List.class, cth.getElements().getElements().getElements().getType());
+        Assertions.assertEquals(Map.class, cth.getElements().getElements().getElements().getElements().getType());
+        Assertions.assertNull(cth.getElements().getElements().getElements().getElements().getElements());
+        Assertions.assertEquals(Class.class, cth.getElements().getElements().getElements().getElements().getKeys().getType());
+        Assertions.assertEquals(String[].class, cth.getElements().getElements().getElements().getElements().getValues().getType());
+        Assertions.assertEquals(String.class, cth.getElements().getElements().getElements().getElements().getValues().getElements().getType());
     }
 }

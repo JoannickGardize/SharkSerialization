@@ -2,9 +2,11 @@ package com.sharkhendrix.serialization;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.sharkhendrix.serialization.annotation.ConcreteType;
 import com.sharkhendrix.serialization.annotation.ElementsConfiguration;
+import com.sharkhendrix.serialization.annotation.ElementsConfigurationType;
 import com.sharkhendrix.serialization.annotation.SharedReference;
 import com.sharkhendrix.serialization.annotation.UndefinedType;
 
@@ -158,7 +160,7 @@ public class SharkSerializationTestModel {
     public static class ConcreteTypeClass {
 
         @ConcreteType(Object[].class)
-        @ElementsConfiguration(type = String.class)
+        @ElementsConfiguration(concreteType = String.class)
         Object o;
 
         @ConcreteType(String.class)
@@ -167,6 +169,14 @@ public class SharkSerializationTestModel {
 
     public static class ArrayCollectionHybridClass {
         List<List<String>[]> list;
+    }
+
+    public static class MapClass {
+
+        @ElementsConfiguration(type = ElementsConfigurationType.KEYS, concreteType = List.class)
+        @ElementsConfiguration(concreteType = String.class)
+        @ElementsConfiguration(type = ElementsConfigurationType.VALUES)
+        Map<Object, Map<String, String>> map;
     }
 
 }

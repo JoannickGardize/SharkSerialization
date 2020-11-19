@@ -3,8 +3,11 @@ package com.sharkhendrix.serialization.serializer;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.sharkhendrix.serialization.SerializationContext;
 import com.sharkhendrix.serialization.Serializer;
@@ -33,8 +36,9 @@ public class DefaultSerializers {
         serialization.register(long[].class, new PrimitiveArraySerializers.LongArraySerializer());
         serialization.register(float[].class, new PrimitiveArraySerializers.FloatArraySerializer());
         serialization.register(double[].class, new PrimitiveArraySerializers.DoubleArraySerializer());
-        serialization.getFieldSerializerFactory().registerSizeableConstructor(Collection.class, ArrayList::new);
+        serialization.getFieldSerializerFactory().registerSizeableConstructor(Set.class, HashSet::new);
         serialization.getFieldSerializerFactory().registerSizeableConstructor(List.class, ArrayList::new);
+        serialization.getFieldSerializerFactory().registerSizeableConstructor(Map.class, HashMap::new);
     }
 
     public static class NullSerializer implements Serializer<Object> {

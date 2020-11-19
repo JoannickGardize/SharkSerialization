@@ -7,19 +7,19 @@ import com.sharkhendrix.serialization.Serializer;
 
 class FieldSerializerFactoryEntry {
 
-    private Predicate<FieldConfiguration> condition;
-    private Function<FieldConfiguration, Serializer<?>> builder;
+    private Predicate<ConfigurationNode> condition;
+    private Function<ConfigurationNode, Serializer<?>> builder;
 
-    public FieldSerializerFactoryEntry(Predicate<FieldConfiguration> condition, Function<FieldConfiguration, Serializer<?>> builder) {
+    public FieldSerializerFactoryEntry(Predicate<ConfigurationNode> condition, Function<ConfigurationNode, Serializer<?>> builder) {
         this.condition = condition;
         this.builder = builder;
     }
 
-    public boolean test(FieldConfiguration field) {
+    public boolean test(ConfigurationNode field) {
         return condition.test(field);
     }
 
-    public Serializer<?> build(FieldConfiguration field) {
+    public Serializer<?> build(ConfigurationNode field) {
         return builder.apply(field);
     }
 

@@ -14,8 +14,8 @@ public class FieldSerializerFactory {
     private Map<Class<?>, IntFunction<?>> sizeableConstructorRecordSet = new HashMap<>();
 
     private Map<String, FieldSerializerFactoryEntry> caseEntries = new HashMap<>();
-    private Function<FieldConfiguration, Serializer<?>> defaultBuilder;
-    private Function<Field, FieldConfiguration> fieldConfigurator;
+    private Function<ConfigurationNode, Serializer<?>> defaultBuilder;
+    private Function<Field, ConfigurationNode> fieldConfigurator;
 
     public <T> void registerSizeableConstructor(Class<T> type, IntFunction<? extends T> constructor) {
 
@@ -27,7 +27,7 @@ public class FieldSerializerFactory {
         return (IntFunction<? extends T>) sizeableConstructorRecordSet.get(type);
     }
 
-    public void addCase(String caseName, Predicate<FieldConfiguration> condition, Function<FieldConfiguration, Serializer<?>> builder) {
+    public void addCase(String caseName, Predicate<ConfigurationNode> condition, Function<ConfigurationNode, Serializer<?>> builder) {
         caseEntries.put(caseName, new FieldSerializerFactoryEntry(condition, builder));
     }
 
@@ -35,11 +35,11 @@ public class FieldSerializerFactory {
         caseEntries.remove(caseName);
     }
 
-    public void setDefault(Function<FieldConfiguration, Serializer<?>> defaultBuilder) {
+    public void setDefault(Function<ConfigurationNode, Serializer<?>> defaultBuilder) {
         this.defaultBuilder = defaultBuilder;
     }
 
-    public void setFieldConfigurator(Function<Field, FieldConfiguration> fieldConfigurator) {
+    public void setFieldConfigurator(Function<Field, ConfigurationNode> fieldConfigurator) {
         this.fieldConfigurator = fieldConfigurator;
     }
 
@@ -47,7 +47,7 @@ public class FieldSerializerFactory {
         return build(fieldConfigurator.apply(field));
     }
 
-    public Serializer<?> build(FieldConfiguration fieldConfiguration) {
+    public Serializer<?> build(ConfigurationNode fieldConfiguration) {
         for (FieldSerializerFactoryEntry entry : caseEntries.values()) {
             if (entry.test(fieldConfiguration)) {
                 return entry.build(fieldConfiguration);

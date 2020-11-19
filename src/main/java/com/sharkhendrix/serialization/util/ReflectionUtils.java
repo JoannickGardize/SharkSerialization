@@ -5,8 +5,9 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 public class ReflectionUtils {
 
@@ -21,54 +22,57 @@ public class ReflectionUtils {
         return !type.isAnnotation() && !type.isArray() && !type.isEnum() && !type.isInterface() && !type.isPrimitive() && !Modifier.isAbstract(type.getModifiers());
     }
 
-    public static Class<?>[] getComponentTypeHierarchy(Field field) {
+    public static ComponentTypeHierarchy getComponentTypeHierarchy(Field field) {
+        return getComponentTypeHierarchy(field, Collection.class, Map.class);
+    }
+
+    public static ComponentTypeHierarchy getComponentTypeHierarchy(Field field, Class<?>... genericComponentSuperclasses) {
         try {
-            Type[] types = getSubTypes(field.getGenericType());
-            List<Class<?>> result = new ArrayList<>();
-            while (types.length > 0) {
-                // TODO handle multiple subtypes
-                result.add(getRawClass(types[0]));
-                types = getSubTypes(types[0]);
-            }
-            return result.toArray(Class[]::new);
+            return analyzeType(field.getGenericType(), Arrays.asList(genericComponentSuperclasses));
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException(e);
+            throw new UnsupportedComponentTypeHierarchyException(e);
         }
     }
 
-    public static Type[] getSubTypes(Type type) {
+    private static ComponentTypeHierarchy analyzeType(Type type, Collection<Class<?>> genericComponentSuperclasses) throws ClassNotFoundException {
         if (type instanceof Class) {
-            if (((Class<?>) type).isArray()) {
-                return new Type[] { ((Class<?>) type).getComponentType() };
-            } else {
-                return new Type[0];
+            ComponentTypeHierarchy componentTypeHierarchy = new ComponentTypeHierarchy((Class<?>) type);
+            if (componentTypeHierarchy.getType().isArray()) {
+                componentTypeHierarchy.setElements(analyzeType(componentTypeHierarchy.getType().getComponentType(), genericComponentSuperclasses));
             }
+            return componentTypeHierarchy;
         } else if (type instanceof ParameterizedType) {
-            return ((ParameterizedType) type).getActualTypeArguments();
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            ComponentTypeHierarchy componentTypeHierarchy = new ComponentTypeHierarchy((Class<?>) parameterizedType.getRawType());
+            if (!genericComponentSuperclasses.stream().anyMatch(c -> c.isAssignableFrom(componentTypeHierarchy.getType()))) {
+                return componentTypeHierarchy;
+            }
+            Type[] typeArguments = parameterizedType.getActualTypeArguments();
+            if (typeArguments.length == 1) {
+                componentTypeHierarchy.setElements(analyzeType(typeArguments[0], genericComponentSuperclasses));
+            } else if (typeArguments.length == 2) {
+                componentTypeHierarchy.setKeys(analyzeType(typeArguments[0], genericComponentSuperclasses));
+                componentTypeHierarchy.setValues(analyzeType(typeArguments[1], genericComponentSuperclasses));
+            } else {
+                throw new UnsupportedComponentTypeHierarchyException(
+                        "Wrong number of generic argument for type \"" + type + "\", It must have one argument for collection types or 2 arguments for map types.");
+            }
+            return componentTypeHierarchy;
         } else if (type instanceof GenericArrayType) {
-            return new Type[] { ((GenericArrayType) type).getGenericComponentType() };
+            GenericArrayType genericArrayType = (GenericArrayType) type;
+            ComponentTypeHierarchy componentTypeHierarchy = new ComponentTypeHierarchy(getArrayClass(genericArrayType));
+            componentTypeHierarchy.setElements(analyzeType(genericArrayType.getGenericComponentType(), genericComponentSuperclasses));
+            return componentTypeHierarchy;
         } else {
-            throw new UnsupportedOperationException("Unsupported type : " + type);
+            throw new UnsupportedComponentTypeHierarchyException("Unsupported generic type : " + type);
         }
     }
 
-    public static Class<?> getRawClass(Type type) throws ClassNotFoundException {
-        if (type instanceof Class) {
-            return (Class<?>) type;
-        } else if (type instanceof ParameterizedType) {
-            return (Class<?>) ((ParameterizedType) type).getRawType();
-        } else if (type instanceof GenericArrayType) {
-            return getArrayClass((GenericArrayType) type);
-        } else {
-            throw new UnsupportedOperationException("Unsupported type : " + type);
-        }
-    }
-
-    public static Class<?> getArrayClass(GenericArrayType type) throws ClassNotFoundException {
+    private static Class<?> getArrayClass(GenericArrayType type) throws ClassNotFoundException {
         return getArrayClass("", type);
     }
 
-    public static Class<?> getArrayClass(String preffix, GenericArrayType type) throws ClassNotFoundException {
+    private static Class<?> getArrayClass(String preffix, GenericArrayType type) throws ClassNotFoundException {
         Type subType = type.getGenericComponentType();
         if (subType instanceof GenericArrayType) {
             return getArrayClass("[", (GenericArrayType) subType);
@@ -78,4 +82,5 @@ public class ReflectionUtils {
             return Class.forName(preffix + "[L" + ((Class<?>) subType).getName() + ";");
         }
     }
+
 }

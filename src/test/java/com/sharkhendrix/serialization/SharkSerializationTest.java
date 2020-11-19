@@ -2,7 +2,10 @@ package com.sharkhendrix.serialization;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +24,7 @@ import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedRe
 import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedReferenceClassB;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedReferenceWrapper;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.ImplementationClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.MapClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.ParameterizedListClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.PrimitiveArrayClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.PrimitiveClass;
@@ -259,6 +263,7 @@ public class SharkSerializationTest {
     public void collectionsTest() {
         SharkSerialization serialization = new SharkSerialization();
         serialization.register(CollectionsClass.class, CollectionsClass::new);
+        serialization.registerConstructor(Collection.class, ArrayList::new);
         serialization.initialize();
 
         CollectionsClass a = new CollectionsClass();
@@ -316,7 +321,7 @@ public class SharkSerializationTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void arrayCollectionHybridClassTest() {
+    public void arrayCollectionHybridTest() {
         SharkSerialization serialization = new SharkSerialization();
         serialization.register(ArrayCollectionHybridClass.class, ArrayCollectionHybridClass::new);
         serialization.registerConstructor(List[].class, List[]::new);
@@ -331,6 +336,25 @@ public class SharkSerializationTest {
         ArrayCollectionHybridClass object2 = writeAndRead(serialization, object);
 
         Assertions.assertEquals(object.list.get(0)[0], object2.list.get(0)[0]);
+    }
+
+    @Test
+    public void mapTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.register(MapClass.class, MapClass::new);
+        serialization.initialize();
+
+        MapClass object = new MapClass();
+        object.map = new HashMap<>();
+        Map<String, String> valueMap = new HashMap<>();
+        valueMap.put("azerty", "qwerty");
+        List<String> keyList = new ArrayList<>();
+        keyList.add("key");
+        object.map.put(keyList, valueMap);
+
+        MapClass object2 = writeAndRead(serialization, object);
+
+        Assertions.assertEquals(object.map.get(keyList), object2.map.get(keyList));
     }
 
     @SuppressWarnings("unchecked")

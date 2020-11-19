@@ -1,16 +1,20 @@
 package com.sharkhendrix.serialization.factory;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 
 import com.sharkhendrix.serialization.SerializationContext;
 import com.sharkhendrix.serialization.Serializer;
 import com.sharkhendrix.serialization.SharkSerializationException;
+import com.sharkhendrix.serialization.annotation.AnnotationConfigurationFactory;
 import com.sharkhendrix.serialization.serializer.ArraySerializer;
 import com.sharkhendrix.serialization.serializer.CollectionSerializer;
+import com.sharkhendrix.serialization.serializer.MapSerializer;
 import com.sharkhendrix.serialization.serializer.SharedReferenceSerializer;
 import com.sharkhendrix.serialization.serializer.UndefinedTypeSerializer;
+import com.sharkhendrix.serialization.util.ReflectionUtils;
 
 public class FieldSerializerFactoryDefaultConfigurator {
 
@@ -22,53 +26,66 @@ public class FieldSerializerFactoryDefaultConfigurator {
 
     public void configure() {
         FieldSerializerFactory factory = context.getFieldSerializerFactory();
-        factory.setFieldConfigurator(FieldConfiguration::new);
+        factory.setFieldConfigurator(f -> ConfigurationNodeTypeMerger.merge(AnnotationConfigurationFactory.build(f), ReflectionUtils.getComponentTypeHierarchy(f)));
         factory.setDefault(this::defaultBuilder);
-        // TODO use concrete type in condition
-        factory.addCase("array", f -> f.getType() != null && f.getType().isArray() && !f.getType().getComponentType().isPrimitive(), this::nonPrimitiveArrayBuilder);
-        factory.addCase("collection", f -> f.getType() != null && Collection.class.isAssignableFrom(f.getType()), this::collectionBuilder);
+        factory.addCase("array", n -> n.getType() != null && n.getType().isArray() && !n.getType().getComponentType().isPrimitive(), this::nonPrimitiveArrayBuilder);
+        factory.addCase("collection", n -> n.getType() != null && Collection.class.isAssignableFrom(n.getType()), this::collectionBuilder);
+        factory.addCase("map", n -> n.getType() != null && Map.class.isAssignableFrom(n.getType()), this::mapBuilder);
     }
 
-    private Serializer<?> defaultBuilder(FieldConfiguration fieldConfiguration) {
+    private Serializer<?> defaultBuilder(ConfigurationNode fieldConfiguration) {
         return defaultBuilder(fieldConfiguration.getType(), fieldConfiguration);
     }
 
-    private <T> Serializer<? extends T> defaultBuilder(Class<T> type, FieldConfiguration configuration) {
+    private <T> Serializer<? extends T> defaultBuilder(Class<T> type, ConfigurationNode configuration) {
         Serializer<? extends T> serializer;
         if (configuration.isUndefinedType()) {
             serializer = new UndefinedTypeSerializer<>(context);
         } else {
             serializer = context.getSerializer(type);
         }
-        if (configuration.isSharedReference()) {
-            return new SharedReferenceSerializer<>(context.getReferenceContext(), serializer);
-        } else {
-            return serializer;
-        }
+        return decorateSharedReference(configuration, serializer);
     }
 
-    private Serializer<?> nonPrimitiveArrayBuilder(FieldConfiguration fieldConfiguration) {
+    private Serializer<?> nonPrimitiveArrayBuilder(ConfigurationNode fieldConfiguration) {
         return collectionBuilder(fieldConfiguration, (t, u) -> new ArraySerializer<>(t, u));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private Serializer<?> collectionBuilder(FieldConfiguration fieldConfiguration) {
+    private Serializer<?> collectionBuilder(ConfigurationNode fieldConfiguration) {
         return collectionBuilder(fieldConfiguration, (t, u) -> new CollectionSerializer(t, u));
     }
 
-    private Serializer<?> collectionBuilder(FieldConfiguration fieldConfiguration, BiFunction<IntFunction<?>, Serializer<?>, Serializer<?>> serializerConstructor) {
+    private Serializer<?> collectionBuilder(ConfigurationNode configurationNode, BiFunction<IntFunction<?>, Serializer<?>, Serializer<?>> serializerConstructor) {
         FieldSerializerFactory factory = context.getFieldSerializerFactory();
-        if (fieldConfiguration.isUndefinedType()) {
-            throw new SharkSerializationException("UndefinedType is unsupported by the field factory for arrays and collections.");
+        IntFunction<?> constructor = commonChecksAndGetConstructor(configurationNode, factory);
+        return decorateSharedReference(configurationNode, serializerConstructor.apply(constructor, factory.build(configurationNode.getElementsConfiguration())));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Serializer<?> mapBuilder(ConfigurationNode configurationNode) {
+        FieldSerializerFactory factory = context.getFieldSerializerFactory();
+        IntFunction<? extends Map<Object, Object>> constructor = (IntFunction<? extends Map<Object, Object>>) commonChecksAndGetConstructor(configurationNode, factory);
+        return decorateSharedReference(configurationNode,
+                new MapSerializer<>(constructor, factory.build(configurationNode.getKeysConfiguration()), factory.build(configurationNode.getValuesConfiguration())));
+    }
+
+    private IntFunction<?> commonChecksAndGetConstructor(ConfigurationNode configurationNode, FieldSerializerFactory factory) {
+        if (configurationNode.isUndefinedType()) {
+            throw new SharkSerializationException("UndefinedType is unsupported by the field factory for arrays, collections, and maps.");
         }
-        IntFunction<?> constructor = factory.getSizeableConstructorRecord(fieldConfiguration.getType());
+        IntFunction<?> constructor = factory.getSizeableConstructorRecord(configurationNode.getType());
         if (constructor == null) {
-            throw new SharkSerializationException("Missing registered constructor for array/collection " + fieldConfiguration.getType().getName());
+            throw new SharkSerializationException("Missing registered constructor for " + configurationNode.getType().getName());
         }
-        if (fieldConfiguration.isSharedReference()) {
-            return new SharedReferenceSerializer<>(context.getReferenceContext(), serializerConstructor.apply(constructor, factory.build(fieldConfiguration.next())));
+        return constructor;
+    }
+
+    private <T> Serializer<? extends T> decorateSharedReference(ConfigurationNode configuration, Serializer<? extends T> serializer) {
+        if (configuration.isSharedReference()) {
+            return new SharedReferenceSerializer<>(context.getReferenceContext(), serializer);
         } else {
-            return serializerConstructor.apply(constructor, factory.build(fieldConfiguration.next()));
+            return serializer;
         }
     }
 }
