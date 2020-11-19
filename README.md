@@ -31,8 +31,8 @@ public class Quickstart {
 
         // Initialize the serializer
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(A.class, A::new);
-        serialization.register(B.class, B::new);
+        serialization.registerObject(A.class, A::new);
+        serialization.registerObject(B.class, B::new);
         serialization.initialize();
 
         // Build data
