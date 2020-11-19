@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization.factory;
+package com.sharkhendrix.serialization.serializer.factory;
 
 import com.sharkhendrix.serialization.util.ComponentTypeHierarchy;
 

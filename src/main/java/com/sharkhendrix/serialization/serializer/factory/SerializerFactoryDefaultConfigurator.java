@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization.factory;
+package com.sharkhendrix.serialization.serializer.factory;
 
 import java.util.Collection;
 import java.util.Map;
@@ -16,17 +16,17 @@ import com.sharkhendrix.serialization.serializer.SharedReferenceSerializer;
 import com.sharkhendrix.serialization.serializer.UndefinedTypeSerializer;
 import com.sharkhendrix.serialization.util.ReflectionUtils;
 
-public class FieldSerializerFactoryDefaultConfigurator {
+public class SerializerFactoryDefaultConfigurator {
 
     private SerializationContext context;
 
-    public FieldSerializerFactoryDefaultConfigurator(SerializationContext context) {
+    public SerializerFactoryDefaultConfigurator(SerializationContext context) {
         this.context = context;
     }
 
     public void configure() {
-        FieldSerializerFactory factory = context.getFieldSerializerFactory();
-        factory.setFieldConfigurator(f -> ConfigurationNodeTypeMerger.merge(AnnotationConfigurationFactory.build(f), ReflectionUtils.getComponentTypeHierarchy(f)));
+        SerializerFactory factory = context.getSerializerFactory();
+        factory.setNodeConfigurator(f -> ConfigurationNodeTypeMerger.merge(AnnotationConfigurationFactory.build(f), ReflectionUtils.getComponentTypeHierarchy(f)));
         factory.setDefault(this::defaultBuilder);
         factory.addCase("array", n -> n.getType() != null && n.getType().isArray() && !n.getType().getComponentType().isPrimitive(), this::nonPrimitiveArrayBuilder);
         factory.addCase("collection", n -> n.getType() != null && Collection.class.isAssignableFrom(n.getType()), this::collectionBuilder);
@@ -57,20 +57,20 @@ public class FieldSerializerFactoryDefaultConfigurator {
     }
 
     private Serializer<?> collectionBuilder(ConfigurationNode configurationNode, BiFunction<IntFunction<?>, Serializer<?>, Serializer<?>> serializerConstructor) {
-        FieldSerializerFactory factory = context.getFieldSerializerFactory();
+        SerializerFactory factory = context.getSerializerFactory();
         IntFunction<?> constructor = commonChecksAndGetConstructor(configurationNode, factory);
         return decorateSharedReference(configurationNode, serializerConstructor.apply(constructor, factory.build(configurationNode.getElementsConfiguration())));
     }
 
     @SuppressWarnings("unchecked")
     private Serializer<?> mapBuilder(ConfigurationNode configurationNode) {
-        FieldSerializerFactory factory = context.getFieldSerializerFactory();
+        SerializerFactory factory = context.getSerializerFactory();
         IntFunction<? extends Map<Object, Object>> constructor = (IntFunction<? extends Map<Object, Object>>) commonChecksAndGetConstructor(configurationNode, factory);
         return decorateSharedReference(configurationNode,
                 new MapSerializer<>(constructor, factory.build(configurationNode.getKeysConfiguration()), factory.build(configurationNode.getValuesConfiguration())));
     }
 
-    private IntFunction<?> commonChecksAndGetConstructor(ConfigurationNode configurationNode, FieldSerializerFactory factory) {
+    private IntFunction<?> commonChecksAndGetConstructor(ConfigurationNode configurationNode, SerializerFactory factory) {
         if (configurationNode.isUndefinedType()) {
             throw new SharkSerializationException("UndefinedType is unsupported by the field factory for arrays, collections, and maps.");
         }

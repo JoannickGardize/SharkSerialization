@@ -3,7 +3,7 @@ package com.sharkhendrix.serialization.annotation;
 import java.lang.reflect.Field;
 
 import com.sharkhendrix.serialization.SharkSerializationException;
-import com.sharkhendrix.serialization.factory.ConfigurationNode;
+import com.sharkhendrix.serialization.serializer.factory.ConfigurationNode;
 
 public class AnnotationConfigurationFactory {
 

@@ -5,8 +5,10 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class ReflectionUtils {
@@ -20,6 +22,16 @@ public class ReflectionUtils {
      */
     public static boolean isInstanciable(Class<?> type) {
         return !type.isAnnotation() && !type.isArray() && !type.isEnum() && !type.isInterface() && !type.isPrimitive() && !Modifier.isAbstract(type.getModifiers());
+    }
+
+    public static Field[] getAllFields(Class<?> type) {
+        Class<?> currentClass = type;
+        List<Field> fields = new ArrayList<>();
+        while (currentClass != Object.class) {
+            fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
+            currentClass = currentClass.getSuperclass();
+        }
+        return fields.toArray(Field[]::new);
     }
 
     public static ComponentTypeHierarchy getComponentTypeHierarchy(Field field) {

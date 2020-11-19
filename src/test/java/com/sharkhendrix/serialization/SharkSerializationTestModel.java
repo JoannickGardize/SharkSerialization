@@ -41,6 +41,54 @@ public class SharkSerializationTestModel {
         Long l;
         Double d;
         Float f;
+
+        public Byte getB() {
+            return b;
+        }
+
+        public void setB(Byte b) {
+            this.b = b;
+        }
+
+        public Short getS() {
+            return s;
+        }
+
+        public void setS(Short s) {
+            this.s = s;
+        }
+
+        public Integer getI() {
+            return i;
+        }
+
+        public void setI(Integer i) {
+            this.i = i;
+        }
+
+        public Long getL() {
+            return l;
+        }
+
+        public void setL(Long l) {
+            this.l = l;
+        }
+
+        public Double getD() {
+            return d;
+        }
+
+        public void setD(Double d) {
+            this.d = d;
+        }
+
+        public Float getF() {
+            return f;
+        }
+
+        public void setF(Float f) {
+            this.f = f;
+        }
     }
 
     public static class A {

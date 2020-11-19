@@ -1,21 +1,21 @@
-package com.sharkhendrix.serialization.serializer.field;
+package com.sharkhendrix.serialization.serializer.fieldaccess;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 import com.sharkhendrix.serialization.Serializer;
 
-public class FieldAccessor extends AttributeAccessor {
-    @SuppressWarnings("rawtypes")
-    protected Serializer serializer;
+public class ObjectFieldAccessor extends AbstractFieldAccessor {
 
-    public FieldAccessor(Field field, Serializer<?> serializer) {
+    protected Serializer<Object> serializer;
+
+    @SuppressWarnings("unchecked")
+    public ObjectFieldAccessor(Field field, Serializer<?> serializer) {
         super(field);
-        this.serializer = serializer;
+        this.serializer = (Serializer<Object>) serializer;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
         serializer.write(buffer, field.get(object));
     }

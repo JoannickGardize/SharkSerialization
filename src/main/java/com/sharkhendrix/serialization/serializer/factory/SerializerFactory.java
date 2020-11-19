@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization.factory;
+package com.sharkhendrix.serialization.serializer.factory;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -9,13 +9,13 @@ import java.util.function.Predicate;
 
 import com.sharkhendrix.serialization.Serializer;
 
-public class FieldSerializerFactory {
+public class SerializerFactory {
 
     private Map<Class<?>, IntFunction<?>> sizeableConstructorRecordSet = new HashMap<>();
 
-    private Map<String, FieldSerializerFactoryEntry> caseEntries = new HashMap<>();
+    private Map<String, SerializerFactoryEntry> caseEntries = new HashMap<>();
     private Function<ConfigurationNode, Serializer<?>> defaultBuilder;
-    private Function<Field, ConfigurationNode> fieldConfigurator;
+    private Function<Field, ConfigurationNode> nodeConfigurator;
 
     public <T> void registerSizeableConstructor(Class<T> type, IntFunction<? extends T> constructor) {
 
@@ -28,7 +28,7 @@ public class FieldSerializerFactory {
     }
 
     public void addCase(String caseName, Predicate<ConfigurationNode> condition, Function<ConfigurationNode, Serializer<?>> builder) {
-        caseEntries.put(caseName, new FieldSerializerFactoryEntry(condition, builder));
+        caseEntries.put(caseName, new SerializerFactoryEntry(condition, builder));
     }
 
     public void removeCase(String caseName) {
@@ -39,16 +39,16 @@ public class FieldSerializerFactory {
         this.defaultBuilder = defaultBuilder;
     }
 
-    public void setFieldConfigurator(Function<Field, ConfigurationNode> fieldConfigurator) {
-        this.fieldConfigurator = fieldConfigurator;
+    public void setNodeConfigurator(Function<Field, ConfigurationNode> fieldConfigurator) {
+        this.nodeConfigurator = fieldConfigurator;
     }
 
     public Serializer<?> build(Field field) {
-        return build(fieldConfigurator.apply(field));
+        return build(nodeConfigurator.apply(field));
     }
 
     public Serializer<?> build(ConfigurationNode fieldConfiguration) {
-        for (FieldSerializerFactoryEntry entry : caseEntries.values()) {
+        for (SerializerFactoryEntry entry : caseEntries.values()) {
             if (entry.test(fieldConfiguration)) {
                 return entry.build(fieldConfiguration);
             }

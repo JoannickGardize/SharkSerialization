@@ -4,10 +4,10 @@ import java.nio.ByteBuffer;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
-import com.sharkhendrix.serialization.factory.FieldSerializerFactory;
-import com.sharkhendrix.serialization.factory.FieldSerializerFactoryDefaultConfigurator;
 import com.sharkhendrix.serialization.serializer.DefaultSerializers;
 import com.sharkhendrix.serialization.serializer.ObjectSerializer;
+import com.sharkhendrix.serialization.serializer.factory.SerializerFactory;
+import com.sharkhendrix.serialization.serializer.factory.SerializerFactoryDefaultConfigurator;
 import com.sharkhendrix.serialization.util.Record;
 import com.sharkhendrix.serialization.util.RecordSet;
 
@@ -19,20 +19,41 @@ public class SharkSerialization implements SerializationContext {
 
     private Record<Serializer<?>> nullSerializerRecord;
 
-    private FieldSerializerFactory fieldSerializerFactory = new FieldSerializerFactory();
+    private SerializerFactory serializerFactory = new SerializerFactory();
 
     public SharkSerialization() {
         DefaultSerializers.registerAll(this);
         nullSerializerRecord = serializerRecordSet.get(null);
-        new FieldSerializerFactoryDefaultConfigurator(this).configure();
+        new SerializerFactoryDefaultConfigurator(this).configure();
     }
 
-    public <T> void register(Class<T> type, Supplier<? extends T> constructor) {
-        register(type, new ObjectSerializer<>(type, constructor));
+    /**
+     * Convenience method to register a class for "object" serialization.
+     * 
+     * @param <T>         the class type
+     * @param type        the class of the object
+     * @param constructor the no-args constructor method for the class
+     * @return the newly created {@link ObjectSerializer} for optional configuration
+     *         chaining
+     */
+    public <T> ObjectSerializer<T> registerObject(Class<T> type, Supplier<? extends T> constructor) {
+        ObjectSerializer<T> serializer = new ObjectSerializer<>(type, constructor);
+        register(type, serializer);
+        return serializer;
     }
 
+    /**
+     * Convenience method to register a constructor for special use. By default,
+     * according to the {@link SerializerFactoryDefaultConfigurator}, this is
+     * the case for all non-primitive arrays, Lists, Sets and Maps.
+     * 
+     * @param <T>         the class type
+     * @param type        the class binded with the constructor
+     * @param constructor the constructor method for the class, the int argument may
+     *                    be used for sizing arrays, collections and maps.
+     */
     public <T> void registerConstructor(Class<T> type, IntFunction<? extends T> constructor) {
-        fieldSerializerFactory.registerSizeableConstructor(type, constructor);
+        serializerFactory.registerSizeableConstructor(type, constructor);
     }
 
     @Override
@@ -89,7 +110,7 @@ public class SharkSerialization implements SerializationContext {
     }
 
     @Override
-    public FieldSerializerFactory getFieldSerializerFactory() {
-        return fieldSerializerFactory;
+    public SerializerFactory getSerializerFactory() {
+        return serializerFactory;
     }
 }

@@ -44,7 +44,7 @@ public class SharkSerializationTest {
     @Test
     public void primitivesSerializationTest() throws NoSuchFieldException, SecurityException {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(PrimitiveClass.class, PrimitiveClass::new);
+        serialization.registerObject(PrimitiveClass.class, PrimitiveClass::new);
         serialization.initialize();
         PrimitiveClass a = new PrimitiveClass();
         a.c = 'a';
@@ -72,7 +72,7 @@ public class SharkSerializationTest {
     @Test
     public void primitiveArraysSerializationTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(PrimitiveArrayClass.class, PrimitiveArrayClass::new);
+        serialization.registerObject(PrimitiveArrayClass.class, PrimitiveArrayClass::new);
         serialization.initialize();
         PrimitiveArrayClass a = new PrimitiveArrayClass();
         a.c = new char[] { 'a' };
@@ -97,7 +97,7 @@ public class SharkSerializationTest {
     @Test
     public void wrappersSerializationTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(WrapperClass.class, WrapperClass::new);
+        serialization.registerObject(WrapperClass.class, WrapperClass::new);
         serialization.initialize();
         WrapperClass a = new WrapperClass();
         a.b = 12;
@@ -119,9 +119,9 @@ public class SharkSerializationTest {
     @Test
     public void objectHierarchySerializationTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(A.class, A::new);
-        serialization.register(B.class, B::new);
-        serialization.register(C.class, C::new);
+        serialization.registerObject(A.class, A::new);
+        serialization.registerObject(B.class, B::new);
+        serialization.registerObject(C.class, C::new);
         serialization.initialize();
         A a = new A();
         a.c = new C();
@@ -137,8 +137,8 @@ public class SharkSerializationTest {
     @Test
     public void undefinedFieldTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(UndefinedFieldsClass.class, UndefinedFieldsClass::new);
-        serialization.register(ImplementationClass.class, ImplementationClass::new);
+        serialization.registerObject(UndefinedFieldsClass.class, UndefinedFieldsClass::new);
+        serialization.registerObject(ImplementationClass.class, ImplementationClass::new);
         serialization.initialize();
         UndefinedFieldsClass a = new UndefinedFieldsClass();
         a.b = new ImplementationClass();
@@ -150,14 +150,14 @@ public class SharkSerializationTest {
     @Test
     public void registerInterfaceFailTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(List.class, () -> new ArrayList<>());
+        serialization.registerObject(List.class, () -> new ArrayList<>());
         Assertions.assertThrows(IllegalArgumentException.class, serialization::initialize);
     }
 
     @Test
     public void transientFieldTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(TransientFieldClass.class, TransientFieldClass::new);
+        serialization.registerObject(TransientFieldClass.class, TransientFieldClass::new);
         TransientFieldClass transientFieldClass = new TransientFieldClass();
         serialization.initialize();
         transientFieldClass.i = 12;
@@ -168,8 +168,8 @@ public class SharkSerializationTest {
     @Test
     public void simpleSharedReferenceTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(SimpleSharedReferenceClass.class, SimpleSharedReferenceClass::new);
-        serialization.register(C.class, C::new);
+        serialization.registerObject(SimpleSharedReferenceClass.class, SimpleSharedReferenceClass::new);
+        serialization.registerObject(C.class, C::new);
         serialization.initialize();
         SimpleSharedReferenceClass a = new SimpleSharedReferenceClass();
         C c = new C();
@@ -193,9 +193,9 @@ public class SharkSerializationTest {
     @Test
     public void cyclicSharedReferenceTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(CyclicSharedReferenceClassA.class, CyclicSharedReferenceClassA::new);
-        serialization.register(CyclicSharedReferenceClassB.class, CyclicSharedReferenceClassB::new);
-        serialization.register(CyclicSharedReferenceWrapper.class, CyclicSharedReferenceWrapper::new);
+        serialization.registerObject(CyclicSharedReferenceClassA.class, CyclicSharedReferenceClassA::new);
+        serialization.registerObject(CyclicSharedReferenceClassB.class, CyclicSharedReferenceClassB::new);
+        serialization.registerObject(CyclicSharedReferenceWrapper.class, CyclicSharedReferenceWrapper::new);
         serialization.initialize();
 
         CyclicSharedReferenceClassA a = new CyclicSharedReferenceClassA();
@@ -212,8 +212,8 @@ public class SharkSerializationTest {
     @Test
     public void sharedUndefinedFieldTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(SharedUndefinedFieldClass.class, SharedUndefinedFieldClass::new);
-        serialization.register(ImplementationClass.class, ImplementationClass::new);
+        serialization.registerObject(SharedUndefinedFieldClass.class, SharedUndefinedFieldClass::new);
+        serialization.registerObject(ImplementationClass.class, ImplementationClass::new);
         serialization.initialize();
         SharedUndefinedFieldClass a = new SharedUndefinedFieldClass();
         AbstractType attr = new ImplementationClass();
@@ -228,10 +228,10 @@ public class SharkSerializationTest {
     @Test
     public void configuredArraysTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(ConfiguredArraysClass.class, ConfiguredArraysClass::new);
+        serialization.registerObject(ConfiguredArraysClass.class, ConfiguredArraysClass::new);
         serialization.registerConstructor(AbstractType[].class, AbstractType[]::new);
         serialization.registerConstructor(AbstractType[][].class, AbstractType[][]::new);
-        serialization.register(ImplementationClass.class, ImplementationClass::new);
+        serialization.registerObject(ImplementationClass.class, ImplementationClass::new);
         serialization.initialize();
         ImplementationClass c = new ImplementationClass();
         ImplementationClass c2 = new ImplementationClass();
@@ -262,7 +262,7 @@ public class SharkSerializationTest {
     @Test
     public void collectionsTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(CollectionsClass.class, CollectionsClass::new);
+        serialization.registerObject(CollectionsClass.class, CollectionsClass::new);
         serialization.registerConstructor(Collection.class, ArrayList::new);
         serialization.initialize();
 
@@ -283,8 +283,8 @@ public class SharkSerializationTest {
     @Test
     public void parameterizedListTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(Object.class, Object::new);
-        serialization.register(ParameterizedListClass.class, ParameterizedListClass::new);
+        serialization.registerObject(Object.class, Object::new);
+        serialization.registerObject(ParameterizedListClass.class, ParameterizedListClass::new);
         serialization.initialize();
 
         ParameterizedListClass object = new ParameterizedListClass();
@@ -305,7 +305,7 @@ public class SharkSerializationTest {
     @Test
     public void concreteTypeTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(ConcreteTypeClass.class, ConcreteTypeClass::new);
+        serialization.registerObject(ConcreteTypeClass.class, ConcreteTypeClass::new);
         serialization.registerConstructor(Object[].class, Object[]::new);
         serialization.initialize();
 
@@ -323,7 +323,7 @@ public class SharkSerializationTest {
     @Test
     public void arrayCollectionHybridTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(ArrayCollectionHybridClass.class, ArrayCollectionHybridClass::new);
+        serialization.registerObject(ArrayCollectionHybridClass.class, ArrayCollectionHybridClass::new);
         serialization.registerConstructor(List[].class, List[]::new);
         serialization.initialize();
 
@@ -341,7 +341,7 @@ public class SharkSerializationTest {
     @Test
     public void mapTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.register(MapClass.class, MapClass::new);
+        serialization.registerObject(MapClass.class, MapClass::new);
         serialization.initialize();
 
         MapClass object = new MapClass();
@@ -355,6 +355,26 @@ public class SharkSerializationTest {
         MapClass object2 = writeAndRead(serialization, object);
 
         Assertions.assertEquals(object.map.get(keyList), object2.map.get(keyList));
+    }
+
+    @Test
+    public void getterSetterTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.registerObject(WrapperClass.class, WrapperClass::new).access(WrapperClass::getB, WrapperClass::setB).access("s", WrapperClass::getS, WrapperClass::setS);
+        serialization.initialize();
+
+        WrapperClass object = new WrapperClass();
+        object.b = 1;
+        object.s = 2;
+        object.i = 3;
+        object.l = 4l;
+        object.d = 5d;
+        object.f = 6f;
+
+        WrapperClass object2 = writeAndRead(serialization, object);
+
+        Assertions.assertEquals(object.b, object2.b);
+        Assertions.assertEquals(object.s, object2.s);
     }
 
     @SuppressWarnings("unchecked")

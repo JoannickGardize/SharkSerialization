@@ -2,7 +2,7 @@ package com.sharkhendrix.serialization;
 
 import java.nio.ByteBuffer;
 
-import com.sharkhendrix.serialization.factory.FieldSerializerFactory;
+import com.sharkhendrix.serialization.serializer.factory.SerializerFactory;
 
 public interface SerializationContext {
 
@@ -16,7 +16,7 @@ public interface SerializationContext {
 
     ReferenceContext getReferenceContext();
 
-    FieldSerializerFactory getFieldSerializerFactory();
+    SerializerFactory getSerializerFactory();
 
     /**
      * Write the full graph of the object o. Keeps the actual reference context.

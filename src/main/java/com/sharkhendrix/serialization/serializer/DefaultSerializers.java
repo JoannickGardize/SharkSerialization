@@ -36,9 +36,9 @@ public class DefaultSerializers {
         serialization.register(long[].class, new PrimitiveArraySerializers.LongArraySerializer());
         serialization.register(float[].class, new PrimitiveArraySerializers.FloatArraySerializer());
         serialization.register(double[].class, new PrimitiveArraySerializers.DoubleArraySerializer());
-        serialization.getFieldSerializerFactory().registerSizeableConstructor(Set.class, HashSet::new);
-        serialization.getFieldSerializerFactory().registerSizeableConstructor(List.class, ArrayList::new);
-        serialization.getFieldSerializerFactory().registerSizeableConstructor(Map.class, HashMap::new);
+        serialization.getSerializerFactory().registerSizeableConstructor(Set.class, HashSet::new);
+        serialization.getSerializerFactory().registerSizeableConstructor(List.class, ArrayList::new);
+        serialization.getSerializerFactory().registerSizeableConstructor(Map.class, HashMap::new);
     }
 
     public static class NullSerializer implements Serializer<Object> {

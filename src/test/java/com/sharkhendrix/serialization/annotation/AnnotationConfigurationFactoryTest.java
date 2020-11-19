@@ -6,7 +6,7 @@ import java.util.HashMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.sharkhendrix.serialization.factory.ConfigurationNode;
+import com.sharkhendrix.serialization.serializer.factory.ConfigurationNode;
 
 public class AnnotationConfigurationFactoryTest {
 
