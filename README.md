@@ -99,7 +99,7 @@ Let's read annotations line by line:
 - `@SharedReference`: the map itself is declared to be shared elsewhere in the graph
 - `@ElementsConfiguration(type = ElementsConfigurationType.KEYS, concreteType = List.class)`: configure the key type of the map, they are lists, so the following annotation will configure it's elements.
 - `@ElementsConfiguration(concreteType = MyClass.class, sharedReference = true)`: configure the elements of the list, now the serializer knows that the keys of the map are `List<MyClass>`. Elements of this list are declared to be shared somewhere in the graph, maybe in the list itself.
-- `@ElementsConfiguration(type = ElementsConfigurationType.VALUES)`: required as pair of the KEYS, but nothing to configure here, because the value type declaration is enough (`Map<String, String>`).
+- `@ElementsConfiguration(type = ElementsConfigurationType.VALUES)`: required as pair of the KEYS, but nothing to configure here, because the field's type declaration is enough (`Map<String, String>`).
 
 #### Registered containers constructors
 
