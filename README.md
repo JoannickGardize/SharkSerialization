@@ -70,7 +70,7 @@ To improve efficiency, SharkSerialization considers the graph to be simple by de
 
 ### Arrays, Collections and Maps configuration
 
-All container types (Arrays, Collections and Maps) are supported and, like field, are considered to be simple by default. Container type must be definied, by the field declaration or with `@ConcreteType`.
+All container types (Arrays, Collections and Maps) are supported and, like field, are considered to be simple by default. Container type must be defined, by the field declaration or with `@ConcreteType`, and it's constructor must be registered by calling `SharkSerialization.registerConstructor(type, constructor)` (unless it is by default, see the last chapter).
 
 The annotation `ElementsConfiguration` allows you to configure the container elements. For example, if a list contains elements that are referenced multiple times anywhere in the graph, it will be configured as following:
 
