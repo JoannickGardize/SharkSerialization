@@ -101,7 +101,7 @@ Let's read annotations line by line:
 - `@ElementsConfiguration(concreteType = MyClass.class, sharedReference = true)`: configure the elements of the list, now the serializer knows that the keys of the map are `List<MyClass>`. Elements of this list are declared to be shared somewhere in the graph, maybe in the list itself.
 - `@ElementsConfiguration(type = ElementsConfigurationType.VALUES)`: required as pair of the KEYS, but nothing to configure here, because the value type declaration is enough (`Map<String, String>`).
 
-#### Registered contaiers constructors
+#### Registered containers constructors
 
 Containers are treated specifically by the FieldSerializationFacotry (except for primitive arrays). They do not requires registration of serializers but requires registration of their constructors. Map references are binded by default with HashMap, and List with ArrayList. For any other array, collection or map types, call `SharkSerialization.registerConstructor(type, constructor)` to register them.
 
