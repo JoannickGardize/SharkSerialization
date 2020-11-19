@@ -75,7 +75,7 @@ All container types (Arrays, Collections and Maps) are supported and, like field
 The annotation `ElementsConfiguration` allows you to configure the container elements. For example, if a list contains elements that are referenced multiple times anywhere in the graph, it will be configured as following:
 
 ```java
-public class MyClass {
+class MyClass {
 
    @ElementsConfiguration(sharedReference = true)
    private List<AnotherClass> myList;
@@ -85,7 +85,7 @@ public class MyClass {
 For map configuration, if you configure it, it must have an `@ElementsConfiguration(type = ElementsConfigurationType.KEYS)` followed by an `@ElementsConfiguration(type = ElementsConfigurationType.VALUES)`. Any hierarchy of arrays, collections and maps can be configured by putting successive `@ElementsConfiguration`, and any branch of the hierarchy can be omitted if the field declaration and the default configuration is enough. Let's take an example:
 
 ```java
-public static class MyClass {
+class MyClass {
         
         @SharedReference
         @ElementsConfiguration(type = ElementsConfigurationType.KEYS, concreteType = List.class)
