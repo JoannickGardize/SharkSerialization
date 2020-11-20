@@ -122,11 +122,17 @@ class ExampleClass {
 
 // first way, configure them by field name
 SharkSerialization serialization = new SharkSerialization();
-serialization.register(ExampleClass.class, ExampleClass::new).access("anObject", ExampleClass::getAnObject, ExampleClass::setAnObject).primitiveAccess("aDouble", ExampleClass::getADouble, ExampleClass::setADouble).primitiveAccess("anInteger", ExampleClass::getAnInteger, ExampleClass::setAnInteger);
+serialization.register(ExampleClass.class, ExampleClass::new)
+    .access("anObject", ExampleClass::getAnObject, ExampleClass::setAnObject)
+    .primitiveAccess("aDouble", ExampleClass::getADouble, ExampleClass::setADouble)
+    .primitiveAccess("anInteger", ExampleClass::getAnInteger, ExampleClass::setAnInteger);
 
 // Second way, configure them using their declaration order (eventual parent class fields in last position)
 SharkSerialization serialization = new SharkSerialization();
-serialization.register(ExampleClass.class, ExampleClass::new).access(ExampleClass::getAnObject, ExampleClass::setAnObject).primitiveAccess(ExampleClass::getAnInteger, ExampleClass::setAnInteger).primitiveAccess(ExampleClass::getADouble, ExampleClass::setADouble);
+serialization.register(ExampleClass.class, ExampleClass::new)
+    .access(ExampleClass::getAnObject, ExampleClass::setAnObject)
+    .primitiveAccess(ExampleClass::getAnInteger, ExampleClass::setAnInteger)
+    .primitiveAccess(ExampleClass::getADouble, ExampleClass::setADouble);
 ```
 
 Note that primitive types must use `primitiveAccess()` and object types must use `access()`.
