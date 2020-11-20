@@ -7,51 +7,52 @@ import com.sharkhendrix.serialization.SharkSerialization;
 public class MethodVsFieldAccessBenchmark {
 
     private static class A {
-        String s1;
-        String s2;
-        String s3;
-        String s4;
-        String s5;
+        int s1;
+        int s2;
+        int s3;
+        int s4;
+        int s5;
 
-        public String getS1() {
+        public int getS1() {
             return s1;
         }
 
-        public void setS1(String s1) {
+        public void setS1(int s1) {
             this.s1 = s1;
         }
 
-        public String getS2() {
+        public int getS2() {
             return s2;
         }
 
-        public void setS2(String s2) {
+        public void setS2(int s2) {
             this.s2 = s2;
         }
 
-        public String getS3() {
+        public int getS3() {
             return s3;
         }
 
-        public void setS3(String s3) {
+        public void setS3(int s3) {
             this.s3 = s3;
         }
 
-        public String getS4() {
+        public int getS4() {
             return s4;
         }
 
-        public void setS4(String s4) {
+        public void setS4(int s4) {
             this.s4 = s4;
         }
 
-        public String getS5() {
+        public int getS5() {
             return s5;
         }
 
-        public void setS5(String s5) {
+        public void setS5(int s5) {
             this.s5 = s5;
         }
+
     }
 
     public static void main(String[] args) {
@@ -67,8 +68,8 @@ public class MethodVsFieldAccessBenchmark {
 
     private static void executeMethodAccess() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.registerObject(A.class, A::new).configure().access(A::getS1, A::setS1).access(A::getS2, A::setS2).access(A::getS3, A::setS3).access(A::getS4, A::setS4)
-                .access(A::getS5, A::setS5);
+        serialization.registerObject(A.class, A::new).primitiveAccess(A::getS1, A::setS1).primitiveAccess(A::getS2, A::setS2).primitiveAccess(A::getS3, A::setS3)
+                .primitiveAccess(A::getS4, A::setS4).primitiveAccess(A::getS5, A::setS5);
         execute(serialization);
     }
 
@@ -76,11 +77,11 @@ public class MethodVsFieldAccessBenchmark {
         serialization.initialize();
         ByteBuffer buffer = ByteBuffer.allocate(1024);
         A a = new A();
-        a.s1 = "test";
-        a.s2 = "test2";
-        a.s3 = "test3";
-        a.s4 = "test4";
-        a.s5 = "test5";
+        a.s1 = 1;
+        a.s2 = 2;
+        a.s3 = 3;
+        a.s4 = 4;
+        a.s5 = 5;
         for (int i = 0; i < 1000; i++) {
             buffer.clear();
             serialization.write(buffer, a);

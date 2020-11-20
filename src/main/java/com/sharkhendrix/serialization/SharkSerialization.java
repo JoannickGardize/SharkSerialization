@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import com.sharkhendrix.serialization.serializer.DefaultSerializers;
 import com.sharkhendrix.serialization.serializer.ObjectSerializer;
+import com.sharkhendrix.serialization.serializer.ObjectSerializerConfigurationHelper;
 import com.sharkhendrix.serialization.serializer.factory.SerializerFactory;
 import com.sharkhendrix.serialization.serializer.factory.SerializerFactoryDefaultConfigurator;
 import com.sharkhendrix.serialization.util.Record;
@@ -28,24 +29,24 @@ public class SharkSerialization implements SerializationContext {
     }
 
     /**
-     * Convenience method to register a class for "object" serialization.
+     * Convenient method to register a class for "object" serialization.
      * 
      * @param <T>         the class type
      * @param type        the class of the object
      * @param constructor the no-args constructor method for the class
-     * @return the newly created {@link ObjectSerializer} for optional configuration
-     *         chaining
+     * @return a configuration helper for the the newly created
+     *         {@link ObjectSerializer}.
      */
-    public <T> ObjectSerializer<T> registerObject(Class<T> type, Supplier<? extends T> constructor) {
+    public <T> ObjectSerializerConfigurationHelper<T> registerObject(Class<T> type, Supplier<? extends T> constructor) {
         ObjectSerializer<T> serializer = new ObjectSerializer<>(type, constructor);
         register(type, serializer);
-        return serializer;
+        return new ObjectSerializerConfigurationHelper<>(serializer);
     }
 
     /**
-     * Convenience method to register a constructor for special use. By default,
-     * according to the {@link SerializerFactoryDefaultConfigurator}, this is
-     * the case for all non-primitive arrays, Lists, Sets and Maps.
+     * Convenient method to register a constructor for special use. By default,
+     * according to the {@link SerializerFactoryDefaultConfigurator}, this is the
+     * case for all non-primitive arrays, Lists, Sets and Maps.
      * 
      * @param <T>         the class type
      * @param type        the class binded with the constructor

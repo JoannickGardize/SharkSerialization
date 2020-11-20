@@ -46,27 +46,7 @@ public class SharkSerializationTest {
         SharkSerialization serialization = new SharkSerialization();
         serialization.registerObject(PrimitiveClass.class, PrimitiveClass::new);
         serialization.initialize();
-        PrimitiveClass a = new PrimitiveClass();
-        a.c = 'a';
-        a.bo = true;
-        a.st = "test";
-        a.b = 12;
-        a.sh = 15;
-        a.i = 42;
-        a.l = 123;
-        a.d = 1.1;
-        a.f = 23.2f;
-        PrimitiveClass a2 = writeAndRead(serialization, a);
-        Assertions.assertNotSame(a2, a);
-        Assertions.assertEquals(a.c, a2.c);
-        Assertions.assertEquals(a.bo, a2.bo);
-        Assertions.assertEquals(a.st, a2.st);
-        Assertions.assertEquals(a.b, a2.b);
-        Assertions.assertEquals(a.sh, a2.sh);
-        Assertions.assertEquals(a.i, a2.i);
-        Assertions.assertEquals(a.l, a2.l);
-        Assertions.assertEquals(a.d, a2.d);
-        Assertions.assertEquals(a.f, a2.f);
+        testPrimitiveClass(serialization);
     }
 
     @Test
@@ -360,8 +340,7 @@ public class SharkSerializationTest {
     @Test
     public void getterSetterTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.registerObject(WrapperClass.class, WrapperClass::new).configure().access(WrapperClass::getB, WrapperClass::setB).access("s", WrapperClass::getS,
-                WrapperClass::setS);
+        serialization.registerObject(WrapperClass.class, WrapperClass::new).access(WrapperClass::getB, WrapperClass::setB).access("s", WrapperClass::getS, WrapperClass::setS);
         serialization.initialize();
 
         WrapperClass object = new WrapperClass();
@@ -377,6 +356,42 @@ public class SharkSerializationTest {
         Assertions.assertEquals(object.b, object2.b);
         Assertions.assertEquals(object.s, object2.s);
         Assertions.assertEquals(object.i, object2.i);
+    }
+
+    @Test
+    public void primitivesGetterSetterTest() throws NoSuchFieldException, SecurityException {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.registerObject(PrimitiveClass.class, PrimitiveClass::new).primitiveAccess(PrimitiveClass::getC, PrimitiveClass::setC)
+                .primitiveAccess(PrimitiveClass::isBo, PrimitiveClass::setBo).access(PrimitiveClass::getSt, PrimitiveClass::setSt)
+                .primitiveAccess(PrimitiveClass::getB, PrimitiveClass::setB).primitiveAccess(PrimitiveClass::getSh, PrimitiveClass::setSh)
+                .primitiveAccess(PrimitiveClass::getI, PrimitiveClass::setI).primitiveAccess(PrimitiveClass::getL, PrimitiveClass::setL)
+                .primitiveAccess(PrimitiveClass::getD, PrimitiveClass::setD).primitiveAccess(PrimitiveClass::getF, PrimitiveClass::setF);
+        serialization.initialize();
+        testPrimitiveClass(serialization);
+    }
+
+    private void testPrimitiveClass(SharkSerialization serialization) {
+        PrimitiveClass a = new PrimitiveClass();
+        a.c = 'a';
+        a.bo = true;
+        a.st = "test";
+        a.b = 12;
+        a.sh = 15;
+        a.i = 42;
+        a.l = 123;
+        a.d = 1.1;
+        a.f = 23.2f;
+        PrimitiveClass a2 = writeAndRead(serialization, a);
+        Assertions.assertNotSame(a2, a);
+        Assertions.assertEquals(a.c, a2.c);
+        Assertions.assertEquals(a.bo, a2.bo);
+        Assertions.assertEquals(a.st, a2.st);
+        Assertions.assertEquals(a.b, a2.b);
+        Assertions.assertEquals(a.sh, a2.sh);
+        Assertions.assertEquals(a.i, a2.i);
+        Assertions.assertEquals(a.l, a2.l);
+        Assertions.assertEquals(a.d, a2.d);
+        Assertions.assertEquals(a.f, a2.f);
     }
 
     @SuppressWarnings("unchecked")

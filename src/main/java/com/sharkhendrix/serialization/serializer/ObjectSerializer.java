@@ -43,10 +43,6 @@ public class ObjectSerializer<T> implements Serializer<T> {
         return fieldConfigurations.get(fieldName);
     }
 
-    public ObjectSerializerConfigurator<T> configure() {
-        return new ObjectSerializerConfigurator<>(this);
-    }
-
     @Override
     public void initialize(SerializationContext context) {
         if (!ReflectionUtils.isInstanciable(type)) {
