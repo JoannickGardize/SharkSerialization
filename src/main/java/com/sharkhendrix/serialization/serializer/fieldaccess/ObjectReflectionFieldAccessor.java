@@ -5,12 +5,12 @@ import java.nio.ByteBuffer;
 
 import com.sharkhendrix.serialization.Serializer;
 
-public class ObjectFieldAccessor extends AbstractFieldAccessor {
+public class ObjectReflectionFieldAccessor extends AbstractFieldAccessor {
 
     protected Serializer<Object> serializer;
 
     @SuppressWarnings("unchecked")
-    public ObjectFieldAccessor(Field field, Serializer<?> serializer) {
+    public ObjectReflectionFieldAccessor(Field field, Serializer<?> serializer) {
         super(field);
         this.serializer = (Serializer<Object>) serializer;
     }

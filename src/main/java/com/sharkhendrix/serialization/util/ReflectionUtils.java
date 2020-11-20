@@ -34,10 +34,34 @@ public class ReflectionUtils {
         return fields.toArray(Field[]::new);
     }
 
+    /**
+     * Calls {@link #getComponentTypeHierarchy(Field, Class...)} as follow:
+     * {@code getComponentTypeHierarchy(field, Collection.class, Map.class)}
+     * 
+     * @param field the field to get its component type hierarchy
+     * @return the root of the component type hierarchy
+     */
     public static ComponentTypeHierarchy getComponentTypeHierarchy(Field field) {
         return getComponentTypeHierarchy(field, Collection.class, Map.class);
     }
 
+    /**
+     * <p>
+     * Returns the component hierarchy of the given field according to it's declared
+     * type. Supports arrays, collections and maps.
+     * <p>
+     * types with one generic argument are treated as collections, types with two
+     * generic arguments are treated as maps.
+     * <p>
+     * Does not supports wildcard generics.
+     * 
+     * @param field                        the field to get its component type
+     *                                     hierarchy
+     * @param genericComponentSuperclasses only generic type that inherit of one of
+     *                                     this argument's class are considered as
+     *                                     collection or map.
+     * @return the root of the component type hierarchy
+     */
     public static ComponentTypeHierarchy getComponentTypeHierarchy(Field field, Class<?>... genericComponentSuperclasses) {
         try {
             return analyzeType(field.getGenericType(), Arrays.asList(genericComponentSuperclasses));

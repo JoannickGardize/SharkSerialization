@@ -360,7 +360,8 @@ public class SharkSerializationTest {
     @Test
     public void getterSetterTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.registerObject(WrapperClass.class, WrapperClass::new).access(WrapperClass::getB, WrapperClass::setB).access("s", WrapperClass::getS, WrapperClass::setS);
+        serialization.registerObject(WrapperClass.class, WrapperClass::new).configure().access(WrapperClass::getB, WrapperClass::setB).access("s", WrapperClass::getS,
+                WrapperClass::setS);
         serialization.initialize();
 
         WrapperClass object = new WrapperClass();
@@ -375,6 +376,7 @@ public class SharkSerializationTest {
 
         Assertions.assertEquals(object.b, object2.b);
         Assertions.assertEquals(object.s, object2.s);
+        Assertions.assertEquals(object.i, object2.i);
     }
 
     @SuppressWarnings("unchecked")

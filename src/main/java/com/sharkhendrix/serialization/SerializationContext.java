@@ -44,8 +44,6 @@ public interface SerializationContext {
      * <p>
      * Write the full graph of the object o with a new reference context.
      * <p>
-     * This default implementation does not support internal reference of the object
-     * o.
      * 
      * @param buffer
      * @param o
@@ -60,8 +58,6 @@ public interface SerializationContext {
      * Read the full graph of the object in this buffer with a new reference
      * context.
      * <p>
-     * This default implementation does not support internal reference of the object
-     * o.
      * 
      * @param buffer
      * @return

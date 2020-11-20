@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.sharkhendrix.serialization.SerializationContext;
@@ -17,8 +15,8 @@ import com.sharkhendrix.serialization.Serializer;
 import com.sharkhendrix.serialization.SharkSerializationException;
 import com.sharkhendrix.serialization.serializer.fieldaccess.FieldAccessor;
 import com.sharkhendrix.serialization.serializer.fieldaccess.MethodFieldAccessor;
-import com.sharkhendrix.serialization.serializer.fieldaccess.ObjectFieldAccessor;
-import com.sharkhendrix.serialization.serializer.fieldaccess.PrimitiveFieldAccessors;
+import com.sharkhendrix.serialization.serializer.fieldaccess.ObjectReflectionFieldAccessor;
+import com.sharkhendrix.serialization.serializer.fieldaccess.PrimitiveReflectionFieldAccessors;
 import com.sharkhendrix.serialization.util.ReflectionUtils;
 
 public class ObjectSerializer<T> implements Serializer<T> {
@@ -33,49 +31,20 @@ public class ObjectSerializer<T> implements Serializer<T> {
         this.newInstanceSupplier = newInstanceSupplier;
     }
 
-    /**
-     * Calls {@link #access(String, Function, BiConsumer)} with the next
-     * unconfigured field. Takes field from first to last, as it is declared in the
-     * class. If it has superclass, its fields are taken after this class.
-     * 
-     * @param <U>    the field's type
-     * @param getter the getter method
-     * @param setter the setter method
-     * @return this ObjectSerializer for chaining
-     */
-    public <U> ObjectSerializer<T> access(Function<T, U> getter, BiConsumer<T, U> setter) {
-        for (Field field : ReflectionUtils.getAllFields(type)) {
-            if (Modifier.isTransient(field.getModifiers())) {
-                continue;
-            }
-            if (!fieldConfigurations.containsKey(field.getName())) {
-                return access(field.getName(), getter, setter);
-            }
-        }
-        throw new IllegalStateException("No more field to configure");
+    public Class<T> getType() {
+        return type;
     }
 
-    /**
-     * Configure the field to use the provided getter and setter instead of Field
-     * reflection access.
-     * 
-     * @param <U>       the field's type
-     * @param fieldName the name of the field, as it is declared in the class
-     * @param getter    the getter method
-     * @param setter    the setter method
-     * @return this ObjectSerializer for chaining
-     */
-    @SuppressWarnings("unchecked")
-    public <U> ObjectSerializer<T> access(String fieldName, Function<T, U> getter, BiConsumer<T, U> setter) {
-        try {
-            type.getDeclaredField(fieldName);
-        } catch (NoSuchFieldException | SecurityException e) {
-            throw new IllegalArgumentException(fieldName + " is not a field of " + type.getName());
-        }
-        ObjectFieldConfiguration configuration = fieldConfigurations.computeIfAbsent(fieldName, n -> new ObjectFieldConfiguration());
-        configuration.setGetter((Function<Object, Object>) getter);
-        configuration.setSetter((BiConsumer<Object, Object>) setter);
-        return this;
+    public void addFieldConfiguration(ObjectFieldConfiguration configuration) {
+        fieldConfigurations.put(configuration.getFieldName(), configuration);
+    }
+
+    public ObjectFieldConfiguration getFieldConfiguration(String fieldName) {
+        return fieldConfigurations.get(fieldName);
+    }
+
+    public ObjectSerializerConfigurator<T> configure() {
+        return new ObjectSerializerConfigurator<>(this);
     }
 
     @Override
@@ -134,9 +103,9 @@ public class ObjectSerializer<T> implements Serializer<T> {
                         .add(new MethodFieldAccessor(configuration.getGetter(), configuration.getSetter(), (Serializer<Object>) context.getSerializerFactory().build(field)));
             } else {
                 if (field.getType().isPrimitive()) {
-                    fieldRecordList.add(PrimitiveFieldAccessors.get(field));
+                    fieldRecordList.add(PrimitiveReflectionFieldAccessors.get(field));
                 } else {
-                    fieldRecordList.add(new ObjectFieldAccessor(field, context.getSerializerFactory().build(field)));
+                    fieldRecordList.add(new ObjectReflectionFieldAccessor(field, context.getSerializerFactory().build(field)));
                 }
             }
         }

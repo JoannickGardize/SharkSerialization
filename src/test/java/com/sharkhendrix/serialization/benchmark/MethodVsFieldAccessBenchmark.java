@@ -67,8 +67,8 @@ public class MethodVsFieldAccessBenchmark {
 
     private static void executeMethodAccess() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.registerObject(A.class, A::new).access(A::getS1, A::setS1).access(A::getS2, A::setS2).access(A::getS3, A::setS3).access(A::getS4, A::setS4).access(A::getS5,
-                A::setS5);
+        serialization.registerObject(A.class, A::new).configure().access(A::getS1, A::setS1).access(A::getS2, A::setS2).access(A::getS3, A::setS3).access(A::getS4, A::setS4)
+                .access(A::getS5, A::setS5);
         execute(serialization);
     }
 
