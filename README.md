@@ -4,7 +4,7 @@
 
 - [X] Object & primitives serializarion
 - [X] Collections & Maps serialization
-- [X] Getter/Setter Serializer alternative
+- [ ] Alternative to annotations
 - [ ] Synchronization framework
 
 # SharkSerialization
