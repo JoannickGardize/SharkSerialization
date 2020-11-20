@@ -337,39 +337,6 @@ public class SharkSerializationTest {
         Assertions.assertEquals(object.map.get(keyList), object2.map.get(keyList));
     }
 
-    @Test
-    public void getterSetterTest() {
-        SharkSerialization serialization = new SharkSerialization();
-        serialization.registerObject(WrapperClass.class, WrapperClass::new).access(WrapperClass::getB, WrapperClass::setB).access("s", WrapperClass::getS, WrapperClass::setS);
-        serialization.initialize();
-
-        WrapperClass object = new WrapperClass();
-        object.b = 1;
-        object.s = 2;
-        object.i = 3;
-        object.l = 4l;
-        object.d = 5d;
-        object.f = 6f;
-
-        WrapperClass object2 = writeAndRead(serialization, object);
-
-        Assertions.assertEquals(object.b, object2.b);
-        Assertions.assertEquals(object.s, object2.s);
-        Assertions.assertEquals(object.i, object2.i);
-    }
-
-    @Test
-    public void primitivesGetterSetterTest() throws NoSuchFieldException, SecurityException {
-        SharkSerialization serialization = new SharkSerialization();
-        serialization.registerObject(PrimitiveClass.class, PrimitiveClass::new).primitiveAccess(PrimitiveClass::getC, PrimitiveClass::setC)
-                .primitiveAccess(PrimitiveClass::isBo, PrimitiveClass::setBo).access(PrimitiveClass::getSt, PrimitiveClass::setSt)
-                .primitiveAccess(PrimitiveClass::getB, PrimitiveClass::setB).primitiveAccess(PrimitiveClass::getSh, PrimitiveClass::setSh)
-                .primitiveAccess(PrimitiveClass::getI, PrimitiveClass::setI).primitiveAccess(PrimitiveClass::getL, PrimitiveClass::setL)
-                .primitiveAccess(PrimitiveClass::getD, PrimitiveClass::setD).primitiveAccess(PrimitiveClass::getF, PrimitiveClass::setF);
-        serialization.initialize();
-        testPrimitiveClass(serialization);
-    }
-
     private void testPrimitiveClass(SharkSerialization serialization) {
         PrimitiveClass a = new PrimitiveClass();
         a.c = 'a';

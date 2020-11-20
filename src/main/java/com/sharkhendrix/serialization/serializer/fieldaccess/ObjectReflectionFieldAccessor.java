@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 
 import com.sharkhendrix.serialization.Serializer;
 
-public class ObjectReflectionFieldAccessor extends AbstractFieldAccessor {
+public class ObjectReflectionFieldAccessor extends FieldAccessor {
 
     protected Serializer<Object> serializer;
 

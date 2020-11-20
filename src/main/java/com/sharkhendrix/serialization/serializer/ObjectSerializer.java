@@ -14,7 +14,6 @@ import com.sharkhendrix.serialization.SerializationContext;
 import com.sharkhendrix.serialization.Serializer;
 import com.sharkhendrix.serialization.SharkSerializationException;
 import com.sharkhendrix.serialization.serializer.fieldaccess.FieldAccessor;
-import com.sharkhendrix.serialization.serializer.fieldaccess.MethodFieldAccessor;
 import com.sharkhendrix.serialization.serializer.fieldaccess.ObjectReflectionFieldAccessor;
 import com.sharkhendrix.serialization.serializer.fieldaccess.PrimitiveReflectionFieldAccessors;
 import com.sharkhendrix.serialization.util.ReflectionUtils;
@@ -85,24 +84,16 @@ public class ObjectSerializer<T> implements Serializer<T> {
         });
     }
 
-    @SuppressWarnings("unchecked")
     private void registerFields(SerializationContext context, List<FieldAccessor> fieldRecordList) {
         for (Field field : ReflectionUtils.getAllFields(type)) {
             // TODO Make this part configurable
             if (Modifier.isTransient(field.getModifiers())) {
                 continue;
             }
-            ObjectFieldConfiguration configuration = fieldConfigurations.get(field.getName());
-            // TODO refactor this
-            if (configuration != null && configuration.getGetter() != null && configuration.getSetter() != null) {
-                fieldRecordList
-                        .add(new MethodFieldAccessor(configuration.getGetter(), configuration.getSetter(), (Serializer<Object>) context.getSerializerFactory().build(field)));
+            if (field.getType().isPrimitive()) {
+                fieldRecordList.add(PrimitiveReflectionFieldAccessors.get(field));
             } else {
-                if (field.getType().isPrimitive()) {
-                    fieldRecordList.add(PrimitiveReflectionFieldAccessors.get(field));
-                } else {
-                    fieldRecordList.add(new ObjectReflectionFieldAccessor(field, context.getSerializerFactory().build(field)));
-                }
+                fieldRecordList.add(new ObjectReflectionFieldAccessor(field, context.getSerializerFactory().build(field)));
             }
         }
     }

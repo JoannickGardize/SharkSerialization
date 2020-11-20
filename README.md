@@ -105,44 +105,6 @@ Let's read annotations line by line:
 
 Containers are treated specifically by the SerializationFacotry (except for primitive arrays). They do not requires registration of serializers but requires registration of their constructors. Map references are binded by default with HashMap, and List with ArrayList. For any other array, collection or map types, call `SharkSerialization.registerConstructor(type, constructor)` to register them.
 
-## Getter / Setter alternative
-
-To (drastically) improve execution time at serialization an deserialization, Object serializers can be configured to use getters and setters methods instead of the default reflection field access. To achieve this, When registering a class, an `ObjectSerializerConfigurationHelper` is returned to configure the serializer in a "chaining" way.
-
-```java
-class ExampleClass {
-    Something anObject;
-    int anInteger;
-    double aDouble;
-    
-    // Getter and Setter methods
-    public void setAnObject(Something anObject) {
-    [...]
-}
-
-[...]
-
-// first way, configure them by field name
-SharkSerialization serialization = new SharkSerialization();
-serialization.registerObject(ExampleClass.class, ExampleClass::new)
-    .access("anObject", ExampleClass::getAnObject, ExampleClass::setAnObject)
-    .primitiveAccess("aDouble", ExampleClass::getADouble, ExampleClass::setADouble)
-    .primitiveAccess("anInteger", ExampleClass::getAnInteger, ExampleClass::setAnInteger);
-
-[...]
-
-// Second way, configure them using the field declaration order (eventual parent class fields in last position)
-SharkSerialization serialization = new SharkSerialization();
-serialization.registerObject(ExampleClass.class, ExampleClass::new)
-    .access(ExampleClass::getAnObject, ExampleClass::setAnObject)
-    .primitiveAccess(ExampleClass::getAnInteger, ExampleClass::setAnInteger)
-    .primitiveAccess(ExampleClass::getADouble, ExampleClass::setADouble);
-
-[...]
-```
-
-Note that primitive types must use `primitiveAccess()` and object types must use `access()`.
-
 ## Default configurations
 
 Primitives, primitive wrappers, primitive arrays, strings, lists, and maps are configured by default:

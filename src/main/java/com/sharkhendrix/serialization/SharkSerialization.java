@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 
 import com.sharkhendrix.serialization.serializer.DefaultSerializers;
 import com.sharkhendrix.serialization.serializer.ObjectSerializer;
-import com.sharkhendrix.serialization.serializer.ObjectSerializerConfigurationHelper;
 import com.sharkhendrix.serialization.serializer.factory.SerializerFactory;
 import com.sharkhendrix.serialization.serializer.factory.SerializerFactoryDefaultConfigurator;
 import com.sharkhendrix.serialization.util.Record;
@@ -34,13 +33,9 @@ public class SharkSerialization implements SerializationContext {
      * @param <T>         the class type
      * @param type        the class of the object
      * @param constructor the no-args constructor method for the class
-     * @return a configuration helper for the the newly created
-     *         {@link ObjectSerializer}.
      */
-    public <T> ObjectSerializerConfigurationHelper<T> registerObject(Class<T> type, Supplier<? extends T> constructor) {
-        ObjectSerializer<T> serializer = new ObjectSerializer<>(type, constructor);
-        register(type, serializer);
-        return new ObjectSerializerConfigurationHelper<>(serializer);
+    public <T> void registerObject(Class<T> type, Supplier<? extends T> constructor) {
+        register(type, new ObjectSerializer<>(type, constructor));
     }
 
     /**
