@@ -4,9 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -23,7 +21,6 @@ public class ObjectSerializer<T> implements Serializer<T> {
     private Class<T> type;
     private Supplier<? extends T> newInstanceSupplier;
     private FieldAccessor[] fieldAccessors;
-    private Map<String, ObjectFieldConfiguration> fieldConfigurations = new HashMap<>();
 
     public ObjectSerializer(Class<T> type, Supplier<? extends T> newInstanceSupplier) {
         this.type = type;
@@ -34,14 +31,6 @@ public class ObjectSerializer<T> implements Serializer<T> {
         return type;
     }
 
-    public void addFieldConfiguration(ObjectFieldConfiguration configuration) {
-        fieldConfigurations.put(configuration.getFieldName(), configuration);
-    }
-
-    public ObjectFieldConfiguration getFieldConfiguration(String fieldName) {
-        return fieldConfigurations.get(fieldName);
-    }
-
     @Override
     public void initialize(SerializationContext context) {
         if (!ReflectionUtils.isInstanciable(type)) {
@@ -50,7 +39,6 @@ public class ObjectSerializer<T> implements Serializer<T> {
         List<FieldAccessor> fieldRecordList = new ArrayList<>();
         registerFields(context, fieldRecordList);
         fieldAccessors = fieldRecordList.toArray(FieldAccessor[]::new);
-        fieldConfigurations = null;
     }
 
     @Override
