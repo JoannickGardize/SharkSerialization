@@ -4,7 +4,7 @@
 
 - [X] Object & primitives serializarion
 - [X] Collections & Maps serialization
-- [ ] Getter/Setter Serializer alternative
+- [X] Getter/Setter Serializer alternative
 - [ ] Synchronization framework
 
 # SharkSerialization
@@ -77,8 +77,8 @@ The annotation `ElementsConfiguration` allows you to configure the container ele
 ```java
 class MyClass {
 
-   @ElementsConfiguration(sharedReference = true)
-   private List<AnotherClass> myList;
+    @ElementsConfiguration(sharedReference = true)
+    private List<AnotherClass> myList;
 }
 ```
 
@@ -86,13 +86,13 @@ For map configuration, if you configure it, it must have an `@ElementsConfigurat
 
 ```java
 class MyClass {
-        
-        @SharedReference
-        @ElementsConfiguration(type = ElementsConfigurationType.KEYS, concreteType = List.class)
-        @ElementsConfiguration(concreteType = MyClass.class, sharedReference = true)
-        @ElementsConfiguration(type = ElementsConfigurationType.VALUES)
-        Map<Object, Map<String, String>> map;
-    }
+
+    @SharedReference
+    @ElementsConfiguration(type = ElementsConfigurationType.KEYS, concreteType = List.class)
+    @ElementsConfiguration(concreteType = MyClass.class, sharedReference = true)
+    @ElementsConfiguration(type = ElementsConfigurationType.VALUES)
+    Map<Object, Map<String, String>> map;
+}
 ```
 
 Let's read annotations line by line:
@@ -105,9 +105,35 @@ Let's read annotations line by line:
 
 Containers are treated specifically by the SerializationFacotry (except for primitive arrays). They do not requires registration of serializers but requires registration of their constructors. Map references are binded by default with HashMap, and List with ArrayList. For any other array, collection or map types, call `SharkSerialization.registerConstructor(type, constructor)` to register them.
 
+## Getter / Setter alternative
+
+To (drastically) improve execution time at serialization an deserialization, Object serializers can be configured to use getters and setters methods instead of the default reflection field access. To achieve this, When registering a class, an `ObjectSerializerConfigurationHelper` is returned to configure the serializer in a "chaining" way.
+
+```java
+class ExampleClass {
+    Something anObject;
+    int anInteger;
+    double aDouble;
+    
+    // Getter and Setter methods
+    public void setAnObject() {
+    [...]
+}
+
+// first way, configure them by field name
+SharkSerialization serialization = new SharkSerialization();
+serialization.register(ExampleClass.class, ExampleClass::new).access("anObject", ExampleClass::getAnObject, ExampleClass::setAnObject).primitiveAccess("aDouble", ExampleClass::getADouble, ExampleClass::setADouble).primitiveAccess("anInteger", ExampleClass::getAnInteger, ExampleClass::setAnInteger);
+
+// Second way, configure them using their declaration order (eventual parent class fields in last position)
+SharkSerialization serialization = new SharkSerialization();
+serialization.register(ExampleClass.class, ExampleClass::new).access(ExampleClass::getAnObject, ExampleClass::setAnObject).primitiveAccess(ExampleClass::getAnInteger, ExampleClass::setAnInteger).primitiveAccess(ExampleClass::getADouble, ExampleClass::setADouble);
+```
+
+Note that primitive types must use `primitiveAccess()` and object types must use `access()`.
+
 ## Default configurations
 
-By default, primitives, primitive wrappers, primitive arrays, strings, lists, and maps are configured by default:
+Primitives, primitive wrappers, primitive arrays, strings, lists, and maps are configured by default:
 - Default registered serializers: Primitive Wrappers (Integer, Character...), primitive arrays (int[], char[]....), String.
 - Primitive types (int, char...) ar treated specifically at the field access level to use optimized field access methods (Field.getInt, Field.getChar...).
 - Default container constructors: List -> ArrayList, Set -> HashSet, Map -> HashMap.
