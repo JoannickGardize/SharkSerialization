@@ -65,10 +65,10 @@ The data is 6 bytes length : 4 bytes for the integer, and  2 bytes of overhead f
 ### Fields configuration
 
 The philosophy of SharkSerialization is to considers the graph to be simple by default, any complexity will require configuration:
-- Fields declared type and actual instance type always matches together, or at least matches a registered class and serializer pair, and are never null. If this is not the case for a class field, annotate it with `@UndefinedType` (+2 bytes of overhead). It is also possible to specify the value type if it is always the same with `@ConcreteType`.
+- Fields declared type and actual instance type always matches together, or at least matches a registered class and serializer pair, and are never null. If this is not the case for a class field, annotate it with `@UndefinedType` (+2 bytes of overhead). This is also possible to specify the value type if it is always the same with `@ConcreteType` (So you'll never have `@UndefinedType` and `@ConcreteType` in the same field).
 - There is no multiple references to the same instance. If this is the case, annotate the field with `@SharedReference` (+2 bytes of overhead for the first occurence, following occurences will only take 2 bytes), any field that possibly shares it's reference should be annotated with `@SharedReference`.
 
-### Arrays, Collections and Maps configuration
+### Fields with arrays, collections and maps configuration
 
 All container types (Arrays, Collections and Maps) are supported and, like field, are considered to be simple by default. Container type must be defined, by the field declaration or with `@ConcreteType`, and it's constructor must be registered by calling `SharkSerialization.registerConstructor(type, constructor)` (unless it is by default, see the last chapter).
 
