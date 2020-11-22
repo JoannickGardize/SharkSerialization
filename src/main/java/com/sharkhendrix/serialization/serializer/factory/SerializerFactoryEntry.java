@@ -4,6 +4,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.sharkhendrix.serialization.Serializer;
+import com.sharkhendrix.serialization.serializer.ConfigurationNode;
 
 class SerializerFactoryEntry {
 

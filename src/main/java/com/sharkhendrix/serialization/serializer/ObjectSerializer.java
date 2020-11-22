@@ -4,12 +4,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.sharkhendrix.serialization.SerializationContext;
 import com.sharkhendrix.serialization.Serializer;
+import com.sharkhendrix.serialization.SharkSerializationConfigurationException;
 import com.sharkhendrix.serialization.SharkSerializationException;
 import com.sharkhendrix.serialization.serializer.fieldaccess.FieldAccessor;
 import com.sharkhendrix.serialization.serializer.fieldaccess.ObjectReflectionFieldAccessor;
@@ -21,6 +24,7 @@ public class ObjectSerializer<T> implements Serializer<T> {
     private Class<T> type;
     private Supplier<? extends T> newInstanceSupplier;
     private FieldAccessor[] fieldAccessors;
+    private Map<String, ConfigurationNode> fieldConfigurations = new HashMap<>();
 
     public ObjectSerializer(Class<T> type, Supplier<? extends T> newInstanceSupplier) {
         this.type = type;
@@ -29,6 +33,21 @@ public class ObjectSerializer<T> implements Serializer<T> {
 
     public Class<T> getType() {
         return type;
+    }
+
+    public ConfigurationNode configure(String fieldName) {
+        ConfigurationNode node = fieldConfigurations.get(fieldName);
+        if (node != null) {
+            return node;
+        }
+        for (Field field : ReflectionUtils.getAllFields(type)) {
+            if (field.getName().equals(fieldName)) {
+                node = new ConfigurationNode();
+                fieldConfigurations.put(field.getName(), node);
+                return node;
+            }
+        }
+        throw new SharkSerializationConfigurationException("No field with the name " + fieldName + " for the class " + type);
     }
 
     @Override
@@ -81,7 +100,7 @@ public class ObjectSerializer<T> implements Serializer<T> {
             if (field.getType().isPrimitive()) {
                 fieldRecordList.add(PrimitiveReflectionFieldAccessors.get(field));
             } else {
-                fieldRecordList.add(new ObjectReflectionFieldAccessor(field, context.getSerializerFactory().build(field)));
+                fieldRecordList.add(new ObjectReflectionFieldAccessor(field, context.getSerializerFactory().build(field, fieldConfigurations.get(field.getName()))));
             }
         }
     }

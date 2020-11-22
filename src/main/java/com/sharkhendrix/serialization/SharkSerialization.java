@@ -5,7 +5,9 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
 import com.sharkhendrix.serialization.serializer.DefaultSerializers;
+import com.sharkhendrix.serialization.serializer.EnumSerializer;
 import com.sharkhendrix.serialization.serializer.ObjectSerializer;
+import com.sharkhendrix.serialization.serializer.ObjectSerializerConfigurationHelper;
 import com.sharkhendrix.serialization.serializer.factory.SerializerFactory;
 import com.sharkhendrix.serialization.serializer.factory.SerializerFactoryDefaultConfigurator;
 import com.sharkhendrix.serialization.util.Record;
@@ -28,18 +30,51 @@ public class SharkSerialization implements SerializationContext {
     }
 
     /**
-     * Convenient method to register a class for "object" serialization.
+     * Same as {@code registerObject(type, type, constructor)}.
      * 
-     * @param <T>         the class type
+     * @param <T>         the object type
      * @param type        the class of the object
-     * @param constructor the no-args constructor method for the class
+     * @param constructor the concrete no-args constructor to use
+     * @return an instance of {@link ObjectSerializerConfigurationHelper} to
+     *         optionally configure the newly created ObjectSerializer
      */
-    public <T> void registerObject(Class<T> type, Supplier<? extends T> constructor) {
-        register(type, new ObjectSerializer<>(type, constructor));
+    public <T> ObjectSerializerConfigurationHelper registerObject(Class<T> type, Supplier<? extends T> constructor) {
+        return registerObject(type, type, constructor);
     }
 
     /**
-     * Convenient method to register a constructor for special use. By default,
+     * Convenience method to register a class for serialization using an
+     * {@link ObjectSerializer}. When the graph encounter the type
+     * {@code declarationType} (by field declared type of by configuration), it will
+     * be serialized using an ObjectSerializer of type {@code concreteType}.
+     * 
+     * @param <T>             the declared type
+     * @param <U>             the concrete type
+     * @param declarationType the declaration class
+     * @param concreteType    the concrete class
+     * @param constructor     the concrete no-args constructor to use
+     * @return an instance of {@link ObjectSerializerConfigurationHelper} to
+     *         optionally configure the newly created ObjectSerializer
+     */
+    public <T, U extends T> ObjectSerializerConfigurationHelper registerObject(Class<T> declarationType, Class<U> concreteType, Supplier<? extends U> constructor) {
+        ObjectSerializer<U> serializer = new ObjectSerializer<>(concreteType, constructor);
+        register(declarationType, serializer);
+        return new ObjectSerializerConfigurationHelper(serializer);
+    }
+
+    /**
+     * Convenience method to register an enum class for serialization using an
+     * {@link EnumSerializer}.
+     * 
+     * @param <T>  the enum type
+     * @param type the enum class instance
+     */
+    public <T extends Enum<T>> void registerEnum(Class<T> type) {
+        register(type, new EnumSerializer<>(type));
+    }
+
+    /**
+     * Convenience method to register a constructor for special use. By default,
      * according to the {@link SerializerFactoryDefaultConfigurator}, this is the
      * case for all non-primitive arrays, Lists, Sets and Maps.
      * 

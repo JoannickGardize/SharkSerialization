@@ -1,5 +1,12 @@
-package com.sharkhendrix.serialization.serializer.factory;
+package com.sharkhendrix.serialization.serializer;
 
+/**
+ * Serialization configuration of a class field and its array / collection / map
+ * sub-elements.
+ * 
+ * @author Joannick Gardize
+ *
+ */
 public class ConfigurationNode {
 
     private Class<?> type = null;

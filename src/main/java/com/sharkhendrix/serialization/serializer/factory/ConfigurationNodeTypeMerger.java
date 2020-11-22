@@ -1,5 +1,6 @@
 package com.sharkhendrix.serialization.serializer.factory;
 
+import com.sharkhendrix.serialization.serializer.ConfigurationNode;
 import com.sharkhendrix.serialization.util.ComponentTypeHierarchy;
 
 public class ConfigurationNodeTypeMerger {

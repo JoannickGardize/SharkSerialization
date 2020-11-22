@@ -299,4 +299,7 @@ public class SharkSerializationTestModel {
         Map<Object, Map<String, String>> map;
     }
 
+    public static enum AnEnumType {
+        CONSTANT1, CONSTANT2;
+    }
 }

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.TestInfo;
 
 import com.sharkhendrix.serialization.SharkSerializationTestModel.A;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.AbstractType;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.AnEnumType;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.ArrayCollectionHybridClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.B;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.C;
@@ -335,6 +336,39 @@ public class SharkSerializationTest {
         MapClass object2 = writeAndRead(serialization, object);
 
         Assertions.assertEquals(object.map.get(keyList), object2.map.get(keyList));
+    }
+
+    @Test
+    public void enumTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.registerEnum(AnEnumType.class);
+        serialization.initialize();
+
+        AnEnumType result = writeAndRead(serialization, AnEnumType.CONSTANT2);
+
+        Assertions.assertEquals(AnEnumType.CONSTANT2, result);
+    }
+
+    @Test
+    public void objectSerializerConfigurationTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.registerObject(ConcreteTypeClass.class, ConcreteTypeClass::new).configure("o").concreteType(Map.class).keys().concreteType(String.class).values()
+                .concreteType(List.class).elements().concreteType(Integer.class);
+        serialization.initialize();
+
+        ConcreteTypeClass object = new ConcreteTypeClass();
+        Map<String, List<Integer>> map = new HashMap<String, List<Integer>>();
+        List<Integer> list = new ArrayList<>();
+        list.add(2);
+        list.add(3);
+        map.put("test", list);
+        object.o = map;
+        object.aString = "test2";
+
+        ConcreteTypeClass object2 = writeAndRead(serialization, object);
+
+        Assertions.assertEquals(object.o, object2.o);
+        Assertions.assertEquals(object.aString, object2.aString);
     }
 
     private void testPrimitiveClass(SharkSerialization serialization) {
