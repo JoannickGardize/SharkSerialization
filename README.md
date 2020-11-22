@@ -103,11 +103,11 @@ Let's read annotations line by line:
 
 #### Register containers constructors
 
-Containers are treated specifically by the SerializationFactory (except for primitive arrays). They do not require registration of serializers but require registration of their constructors. For any non-default configured (see next chapter) array, collection or map types, a call to `SharkSerialization.registerConstructor(type, constructor)` is required to register them.
+Containers are treated specifically by the SerializerFactory (except for primitive arrays). They do not require registration of serializers but require registration of their constructors. For any non-default configured (see next chapter) array, collection or map types, a call to `SharkSerialization.registerConstructor(type, constructor)` is required to register them.
 
 ### Methods of configuration
 
-The previous examples of this chapter used annotation configuration, this also is possible to directly configure the serializer instead, for example, the equivalent of the previous map example would be:
+The previous examples of this chapter used annotation configuration, this is also possible to directly configure the serializer instead, for example, the equivalent of the previous map example would be:
 
 ```java
 serialization.registerObject(MapExample.class, MapExample::new).configure("map")
@@ -116,6 +116,14 @@ serialization.registerObject(MapExample.class, MapExample::new).configure("map")
     .elements().concreteType(MyClass.class).sharedReference()
     .values(); // Like annotations, values() must always be called after keys(), even if there is nothing to configure.
 
+```
+
+#### Priorities
+
+According to the default SerializerFactory configuration, The priority of the different field's configuration methods is (individually for each field):
+
+```
+ObjectSerializer configuration > Annotation configuration > Field declaration (for the declared type)
 ```
 
 ## Default serialization configuration
