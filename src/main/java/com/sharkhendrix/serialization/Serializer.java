@@ -3,6 +3,9 @@ package com.sharkhendrix.serialization;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import com.sharkhendrix.serialization.annotation.SharedReference;
+import com.sharkhendrix.serialization.serializer.ObjectSerializer;
+
 public interface Serializer<T> {
 
     void write(ByteBuffer buffer, T object);
@@ -27,8 +30,11 @@ public interface Serializer<T> {
      * <p>
      * The default implementation consider that the object has no recursive content.
      * <p>
-     * Typically, the content is recursive if reading it requires a call to
-     * {@link SerializationContext#readObject(ByteBuffer)}.
+     * Typically, the content is recursive if reading it requires a call to other
+     * unknown Serializers, this is the case for the {@link ObjectSerializer}.
+     * <p>
+     * {@link SharedReference} uses this signature to store the reference of the
+     * newly created instance.
      * 
      * @param buffer
      * @param intermediateConsumer

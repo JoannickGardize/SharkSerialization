@@ -1,5 +1,20 @@
 package com.sharkhendrix.serialization.util;
 
+/**
+ * <p>
+ * Represents the type of a class and its eventual components type hierarchy.
+ * <p>
+ * If the type is an array or a collection, the method {@link #getElements()}
+ * will return its component type.
+ * <p>
+ * If the type is a map, the method {@link #getKeys()} will return its keys type
+ * and {@link #getValues()} will return its values type.
+ * <p>
+ * If the type is not a container type, all these methods will return null.
+ *
+ * @author Joannick Gardize
+ *
+ */
 public class ComponentTypeHierarchy {
 
     private Class<?> type;

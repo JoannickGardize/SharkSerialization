@@ -34,9 +34,9 @@ public class ReflectionUtilsTest {
     private List<List<Map<Class<?>, String[]>>[][]> arrayListMapStorm;
 
     @ParameterizedTest
-    @ValueSource(classes = { int.class, Integer.class, AnAnnototation.class, AnInterface.class, AnAbstractClass.class, AnEnum.class })
-    public void isInstanciableFalseTest() {
-        Assertions.assertFalse(ReflectionUtils.isInstanciable(int.class));
+    @ValueSource(classes = { int.class, AnAnnototation.class, AnInterface.class, AnAbstractClass.class, AnEnum.class })
+    public void isInstanciableFalseTest(Class<?> type) {
+        Assertions.assertFalse(ReflectionUtils.isInstanciable(type));
     }
 
     @Test

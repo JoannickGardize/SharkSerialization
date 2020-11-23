@@ -6,19 +6,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class PrimitiveReflectionFieldAccessors {
+public class PrimitiveFieldAccessors {
 
     private static Map<Class<?>, Function<Field, FieldAccessor>> fieldRecordSuppliers = new HashMap<>();
 
     static {
-        fieldRecordSuppliers.put(byte.class, PrimitiveReflectionFieldAccessors::byteFieldAccesor);
-        fieldRecordSuppliers.put(char.class, PrimitiveReflectionFieldAccessors::charFieldAccessor);
-        fieldRecordSuppliers.put(boolean.class, PrimitiveReflectionFieldAccessors::booleanFieldAccessor);
-        fieldRecordSuppliers.put(short.class, PrimitiveReflectionFieldAccessors::shortFieldAccessor);
-        fieldRecordSuppliers.put(int.class, PrimitiveReflectionFieldAccessors::intFieldAccessor);
-        fieldRecordSuppliers.put(long.class, PrimitiveReflectionFieldAccessors::longFieldAccessor);
-        fieldRecordSuppliers.put(float.class, PrimitiveReflectionFieldAccessors::floatFieldAccessor);
-        fieldRecordSuppliers.put(double.class, PrimitiveReflectionFieldAccessors::doubleFieldAccessor);
+        fieldRecordSuppliers.put(byte.class, PrimitiveFieldAccessors::byteFieldAccesor);
+        fieldRecordSuppliers.put(char.class, PrimitiveFieldAccessors::charFieldAccessor);
+        fieldRecordSuppliers.put(boolean.class, PrimitiveFieldAccessors::booleanFieldAccessor);
+        fieldRecordSuppliers.put(short.class, PrimitiveFieldAccessors::shortFieldAccessor);
+        fieldRecordSuppliers.put(int.class, PrimitiveFieldAccessors::intFieldAccessor);
+        fieldRecordSuppliers.put(long.class, PrimitiveFieldAccessors::longFieldAccessor);
+        fieldRecordSuppliers.put(float.class, PrimitiveFieldAccessors::floatFieldAccessor);
+        fieldRecordSuppliers.put(double.class, PrimitiveFieldAccessors::doubleFieldAccessor);
     }
 
     public static FieldAccessor get(Field field) {

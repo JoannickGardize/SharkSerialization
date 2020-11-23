@@ -59,6 +59,7 @@ public class SharkSerialization implements SerializationContext {
 
     public void initialize() {
         serializerRecordSet.forEachValues(s -> s.initialize(this));
+        serializerRecordSet.initialize();
     }
 
     @SuppressWarnings("unchecked")
@@ -83,17 +84,13 @@ public class SharkSerialization implements SerializationContext {
         if (serializerRecord == null) {
             throw new SharkSerializationException("Class not registered: " + o.getClass().getName());
         }
-        buffer.putShort((short) serializerRecord.getId());
+        serializerRecordSet.writeRecord(buffer, serializerRecord);
         return (Serializer<T>) serializerRecord.getElement();
     }
 
     @Override
     public Serializer<?> readType(ByteBuffer buffer) {
-        int id = buffer.getShort();
-        if (id < 0 || id >= serializerRecordSet.size()) {
-            throw new SharkSerializationException("Unknown register id: " + id);
-        }
-        return serializerRecordSet.get(id).getElement();
+        return serializerRecordSet.readRecord(buffer).getElement();
     }
 
     public void setReferenceContext(ReferenceContext referenceContext) {
