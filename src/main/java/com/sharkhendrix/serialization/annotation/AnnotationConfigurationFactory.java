@@ -2,8 +2,8 @@ package com.sharkhendrix.serialization.annotation;
 
 import java.lang.reflect.Field;
 
-import com.sharkhendrix.serialization.SharkSerializationException;
-import com.sharkhendrix.serialization.serializer.factory.ConfigurationNode;
+import com.sharkhendrix.serialization.SharkSerializationConfigurationException;
+import com.sharkhendrix.serialization.serializer.ConfigurationNode;
 
 public class AnnotationConfigurationFactory {
 
@@ -12,7 +12,11 @@ public class AnnotationConfigurationFactory {
 
     public static ConfigurationNode build(Field field) {
         ConfigurationNode node = createRootNode(field);
-        processNextNode(node, getElementsConfigurations(field), 0);
+        try {
+            processNextNode(node, getElementsConfigurations(field), 0);
+        } catch (SharkSerializationConfigurationException e) {
+            throw new SharkSerializationConfigurationException(e.getMessage() + " for field: " + field);
+        }
         return node;
     }
 
@@ -21,15 +25,15 @@ public class AnnotationConfigurationFactory {
         ConcreteType concreteType = field.getAnnotation(ConcreteType.class);
         if (concreteType != null) {
             node.setType(concreteType.value());
-        } else {
-            node.setType(field.getType());
         }
         node.setSharedReference(field.isAnnotationPresent(SharedReference.class));
         node.setUndefinedType(field.isAnnotationPresent(UndefinedType.class));
+
         return node;
     }
 
     private static int processNextNode(ConfigurationNode node, ElementsConfiguration[] annotations, int index) {
+        checkNodeValid(node);
         boolean requiresValues = false;
         for (int i = index; i < annotations.length; i++) {
             ElementsConfiguration annotation = annotations[i];
@@ -55,7 +59,7 @@ public class AnnotationConfigurationFactory {
             }
         }
         if (requiresValues) {
-            throw new SharkSerializationException("Malformed configuration annotations : an ElementsConfiguration of type KEYS is missing it's VALUES pair");
+            throw new SharkSerializationConfigurationException("Malformed configuration annotations: an ElementsConfiguration of type KEYS is missing it's VALUES pair");
         }
         return annotations.length;
     }
@@ -80,5 +84,11 @@ public class AnnotationConfigurationFactory {
             return new ElementsConfiguration[] { elementsConfiguration };
         }
         return new ElementsConfiguration[0];
+    }
+
+    private static void checkNodeValid(ConfigurationNode node) {
+        if (node.getType() != null && node.isUndefinedType()) {
+            throw new SharkSerializationConfigurationException("Malformed configuration annotations: cannot define a concrete type on an undefined type");
+        }
     }
 }

@@ -3,11 +3,13 @@ package com.sharkhendrix.serialization.serializer.factory;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 import com.sharkhendrix.serialization.Serializer;
+import com.sharkhendrix.serialization.serializer.ConfigurationNode;
 
 public class SerializerFactory {
 
@@ -15,7 +17,7 @@ public class SerializerFactory {
 
     private Map<String, SerializerFactoryEntry> caseEntries = new HashMap<>();
     private Function<ConfigurationNode, Serializer<?>> defaultBuilder;
-    private Function<Field, ConfigurationNode> nodeConfigurator;
+    private BiFunction<Field, ConfigurationNode, ConfigurationNode> nodeConfigurator;
 
     public <T> void registerSizeableConstructor(Class<T> type, IntFunction<? extends T> constructor) {
 
@@ -39,12 +41,12 @@ public class SerializerFactory {
         this.defaultBuilder = defaultBuilder;
     }
 
-    public void setNodeConfigurator(Function<Field, ConfigurationNode> fieldConfigurator) {
+    public void setNodeConfigurator(BiFunction<Field, ConfigurationNode, ConfigurationNode> fieldConfigurator) {
         this.nodeConfigurator = fieldConfigurator;
     }
 
-    public Serializer<?> build(Field field) {
-        return build(nodeConfigurator.apply(field));
+    public Serializer<?> build(Field field, ConfigurationNode defaultConfiguration) {
+        return build(nodeConfigurator.apply(field, defaultConfiguration));
     }
 
     public Serializer<?> build(ConfigurationNode fieldConfiguration) {

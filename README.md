@@ -4,7 +4,7 @@
 
 - [X] Object & primitives serializarion
 - [X] Collections & Maps serialization
-- [X] Getter/Setter Serializer alternative
+- [X] Alternative to annotations
 - [ ] Synchronization framework
 
 # SharkSerialization
@@ -64,18 +64,18 @@ The data is 6 bytes length : 4 bytes for the integer, and  2 bytes of overhead f
 
 ### Fields configuration
 
-To improve efficiency, SharkSerialization considers the graph to be simple by default, any complexity will require configuration:
-- Fields declared type and actual instance type always matches together, or at least matches a registered class and serializer pair, and are never null. If this is not the case for a class field, annotate it with `@UndefinedType` (+2 bytes of overhead). It is also possible to specify the value type if it is always the same with `@ConcreteType`.
+The philosophy of SharkSerialization is to considers the graph to be simple by default, any complexity will require configuration:
+- Fields declared type and actual instance type always matches together, or at least matches a registered class and serializer pair, and are never null. If this is not the case for a class field, annotate it with `@UndefinedType` (+2 bytes of overhead). This is also possible to specify the value type if it is always the same with `@ConcreteType` (So you'll never have `@UndefinedType` and `@ConcreteType` in the same field).
 - There is no multiple references to the same instance. If this is the case, annotate the field with `@SharedReference` (+2 bytes of overhead for the first occurence, following occurences will only take 2 bytes), any field that possibly shares it's reference should be annotated with `@SharedReference`.
 
-### Arrays, Collections and Maps configuration
+### Fields with arrays, collections and maps configuration
 
 All container types (Arrays, Collections and Maps) are supported and, like field, are considered to be simple by default. Container type must be defined, by the field declaration or with `@ConcreteType`, and it's constructor must be registered by calling `SharkSerialization.registerConstructor(type, constructor)` (unless it is by default, see the last chapter).
 
 The annotation `ElementsConfiguration` allows you to configure the container elements. For example, if a list contains elements that are referenced multiple times anywhere in the graph, it will be configured as following:
 
 ```java
-class MyClass {
+class ListExample {
 
     @ElementsConfiguration(sharedReference = true)
     private List<AnotherClass> myList;
@@ -85,7 +85,7 @@ class MyClass {
 For map configuration, if you configure it, it must have an `@ElementsConfiguration(type = ElementsConfigurationType.KEYS)` followed by an `@ElementsConfiguration(type = ElementsConfigurationType.VALUES)`. Any hierarchy of arrays, collections and maps can be configured by putting successive `@ElementsConfiguration`, and any branch of the hierarchy can be omitted if the field declaration and the default configuration is enough. Let's take an example:
 
 ```java
-class MyClass {
+class MapExample {
 
     @SharedReference
     @ElementsConfiguration(type = ElementsConfigurationType.KEYS, concreteType = List.class)
@@ -101,11 +101,32 @@ Let's read annotations line by line:
 - `@ElementsConfiguration(concreteType = MyClass.class, sharedReference = true)`: configure the elements of the list, now the serializer knows that the keys of the map are `List<MyClass>`. Elements of this list are declared to be shared somewhere in the graph, maybe in the list itself.
 - `@ElementsConfiguration(type = ElementsConfigurationType.VALUES)`: required as pair of the KEYS, but nothing to configure here, because the field's type declaration is enough (`Map<String, String>`).
 
-#### Registered containers constructors
+#### Register containers constructors
 
-Containers are treated specifically by the SerializationFacotry (except for primitive arrays). They do not requires registration of serializers but requires registration of their constructors. Map references are binded by default with HashMap, and List with ArrayList. For any other array, collection or map types, call `SharkSerialization.registerConstructor(type, constructor)` to register them.
+Containers are treated specifically by the SerializerFactory (except for primitive arrays). They do not require registration of serializers but require registration of their constructors. For any non-default configured (see next chapter) array, collection or map types, a call to `SharkSerialization.registerConstructor(type, constructor)` is required to register them.
 
-## Default configurations
+### Methods of configuration
+
+The previous examples of this chapter used annotation configuration, this is also possible to directly configure the serializer instead, for example, the equivalent of the previous map example would be:
+
+```java
+serialization.registerObject(MapExample.class, MapExample::new).configure("map")
+    .sharedReference()
+    .keys().concreteType(List.class)
+    .elements().concreteType(MyClass.class).sharedReference()
+    .values(); // Like annotations, values() must always be called after keys(), even if there is nothing to configure.
+
+```
+
+#### Priorities
+
+According to the default SerializerFactory configuration, The priority of the different field's configuration methods is (individually for each field):
+
+```
+ObjectSerializer configuration > Annotation configuration > Field declaration (for the declared type)
+```
+
+## Default serialization configuration
 
 Primitives, primitive wrappers, primitive arrays, strings, lists, and maps are configured by default:
 - Default registered serializers: Primitive Wrappers (Integer, Character...), primitive arrays (int[], char[]....), String.

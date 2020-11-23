@@ -6,15 +6,14 @@ import java.util.HashMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.sharkhendrix.serialization.serializer.factory.ConfigurationNode;
+import com.sharkhendrix.serialization.serializer.ConfigurationNode;
 
 public class AnnotationConfigurationFactoryTest {
 
     @ConcreteType(ArrayList.class)
     @SharedReference
-    @UndefinedType
     @ElementsConfiguration(concreteType = HashMap.class)
-    @ElementsConfiguration(type = ElementsConfigurationType.KEYS, concreteType = Integer.class, sharedReference = true, undefinedType = true)
+    @ElementsConfiguration(type = ElementsConfigurationType.KEYS, concreteType = Integer.class, sharedReference = true)
     @ElementsConfiguration(concreteType = Character.class)
     @ElementsConfiguration(concreteType = Short.class)
     @ElementsConfiguration(type = ElementsConfigurationType.VALUES, concreteType = Byte.class)
@@ -28,7 +27,7 @@ public class AnnotationConfigurationFactoryTest {
 
         Assertions.assertEquals(node.getType(), ArrayList.class);
         Assertions.assertTrue(node.isSharedReference());
-        Assertions.assertTrue(node.isUndefinedType());
+        Assertions.assertFalse(node.isUndefinedType());
         Assertions.assertNull(node.getKeysConfiguration());
         Assertions.assertNull(node.getValuesConfiguration());
 
@@ -36,7 +35,7 @@ public class AnnotationConfigurationFactoryTest {
 
         Assertions.assertEquals(node.getKeysConfiguration().getType(), Integer.class);
         Assertions.assertTrue(node.getKeysConfiguration().isSharedReference());
-        Assertions.assertTrue(node.getKeysConfiguration().isUndefinedType());
+        Assertions.assertFalse(node.getKeysConfiguration().isUndefinedType());
         Assertions.assertNull(node.getKeysConfiguration().getKeysConfiguration());
         Assertions.assertNull(node.getKeysConfiguration().getValuesConfiguration());
         Assertions.assertEquals(node.getKeysConfiguration().getElementsConfiguration().getType(), Character.class);

@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target(FIELD)
-@interface ElementsConfigurationGroup {
+public @interface ElementsConfigurationGroup {
     ElementsConfiguration[] value();
 }
