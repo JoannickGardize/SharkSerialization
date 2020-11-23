@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class ObjectSerializerConfigurationHelper {
 
-    private ObjectSerializer objectSerializer;
+    private ObjectSerializer<?> objectSerializer;
     private ConfigurationNode currentNode;
     private List<ConfigurationNode> mapStack = new ArrayList<>();
 

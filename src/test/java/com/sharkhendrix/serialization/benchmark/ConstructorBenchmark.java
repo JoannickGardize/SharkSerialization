@@ -25,11 +25,9 @@ public class ConstructorBenchmark {
             Constructor<A> constructor = A.class.getDeclaredConstructor();
             constructor.setAccessible(true);
 
-            A a = null;
             for (int i = 0; i < 10_000_000; i++) {
-                a = constructor.newInstance();
+                constructor.newInstance();
             }
-            System.out.println(A.i);
         } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -37,11 +35,9 @@ public class ConstructorBenchmark {
 
     public static void methodConstructor() {
 
-        A a = null;
         Supplier<A> constructor = A::new;
         for (int i = 0; i < 10_000_000; i++) {
-            a = constructor.get();
+            constructor.get();
         }
-        System.out.println(A.i);
     }
 }

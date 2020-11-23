@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 /**
  * Factory of {@link IntegerSerializer}.
  * 
- * @author Joannick
+ * @author Joannick Gardize
  *
  */
 public class IntegerSerializerFactory {
@@ -56,14 +56,15 @@ public class IntegerSerializerFactory {
      * Returns an IntegerSerializer that uses the smallest number of bytes required
      * according to the known maximum value required.
      * 
-     * @param potentialAbsoluteMaxValue the potential maximum value, in absolute
+     * @param absoluteMaxValue the potential maximum value, in absolute
      *                                  value
-     * @return an IntegerSerializer
+     * @return an IntegerSerializer which supports integers with absolute value <=
+     *         {@code potentialAbsoluteMaxValue}
      */
-    public static IntegerSerializer build(int potentialAbsoluteMaxValue) {
-        if (potentialAbsoluteMaxValue <= Byte.MAX_VALUE) {
+    public static IntegerSerializer build(int absoluteMaxValue) {
+        if (absoluteMaxValue <= Byte.MAX_VALUE) {
             return BYTE_SERIALIZER;
-        } else if (potentialAbsoluteMaxValue <= Short.MAX_VALUE) {
+        } else if (absoluteMaxValue <= Short.MAX_VALUE) {
             return SHORT_SERIALIZER;
         } else {
             return INT_SERIALIZER;
