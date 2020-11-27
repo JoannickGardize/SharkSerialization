@@ -3,6 +3,7 @@ package com.sharkhendrix.serialization.serializer;
 import java.nio.ByteBuffer;
 
 import com.sharkhendrix.serialization.Serializer;
+import com.sharkhendrix.serialization.util.VarNumberIO;
 
 public class PrimitiveArraySerializers {
 
@@ -14,7 +15,7 @@ public class PrimitiveArraySerializers {
         @Override
         public void write(ByteBuffer buffer, byte[] object) {
             int length = object.length;
-            buffer.putInt(length);
+            VarNumberIO.writePositiveVarInt(buffer, length);
             for (int i = 0; i < length; i++) {
                 buffer.put(object[i]);
             }
@@ -22,7 +23,7 @@ public class PrimitiveArraySerializers {
 
         @Override
         public byte[] read(ByteBuffer buffer) {
-            int length = buffer.getInt();
+            int length = VarNumberIO.readPositiveVarInt(buffer);
             byte[] object = new byte[length];
             for (int i = 0; i < length; i++) {
                 object[i] = buffer.get();
@@ -36,7 +37,7 @@ public class PrimitiveArraySerializers {
         @Override
         public void write(ByteBuffer buffer, char[] object) {
             int length = object.length;
-            buffer.putInt(length);
+            VarNumberIO.writePositiveVarInt(buffer, length);
             for (int i = 0; i < length; i++) {
                 buffer.putChar(object[i]);
             }
@@ -44,7 +45,7 @@ public class PrimitiveArraySerializers {
 
         @Override
         public char[] read(ByteBuffer buffer) {
-            int length = buffer.getInt();
+            int length = VarNumberIO.readPositiveVarInt(buffer);
             char[] object = new char[length];
             for (int i = 0; i < length; i++) {
                 object[i] = buffer.getChar();
@@ -58,7 +59,7 @@ public class PrimitiveArraySerializers {
         @Override
         public void write(ByteBuffer buffer, boolean[] object) {
             int length = object.length;
-            buffer.putInt(length);
+            VarNumberIO.writePositiveVarInt(buffer, length);
             for (int i = 0; i < length; i++) {
                 buffer.put(object[i] ? (byte) 1 : (byte) 0);
             }
@@ -66,7 +67,7 @@ public class PrimitiveArraySerializers {
 
         @Override
         public boolean[] read(ByteBuffer buffer) {
-            int length = buffer.getInt();
+            int length = VarNumberIO.readPositiveVarInt(buffer);
             boolean[] object = new boolean[length];
             for (int i = 0; i < length; i++) {
                 object[i] = buffer.get() == (byte) 1;
@@ -80,7 +81,7 @@ public class PrimitiveArraySerializers {
         @Override
         public void write(ByteBuffer buffer, short[] object) {
             int length = object.length;
-            buffer.putInt(length);
+            VarNumberIO.writePositiveVarInt(buffer, length);
             for (int i = 0; i < length; i++) {
                 buffer.putShort(object[i]);
             }
@@ -88,7 +89,7 @@ public class PrimitiveArraySerializers {
 
         @Override
         public short[] read(ByteBuffer buffer) {
-            int length = buffer.getInt();
+            int length = VarNumberIO.readPositiveVarInt(buffer);
             short[] object = new short[length];
             for (int i = 0; i < length; i++) {
                 object[i] = buffer.getShort();
@@ -102,7 +103,7 @@ public class PrimitiveArraySerializers {
         @Override
         public void write(ByteBuffer buffer, int[] object) {
             int length = object.length;
-            buffer.putInt(length);
+            VarNumberIO.writePositiveVarInt(buffer, length);
             for (int i = 0; i < length; i++) {
                 buffer.putInt(object[i]);
             }
@@ -110,7 +111,7 @@ public class PrimitiveArraySerializers {
 
         @Override
         public int[] read(ByteBuffer buffer) {
-            int length = buffer.getInt();
+            int length = VarNumberIO.readPositiveVarInt(buffer);
             int[] object = new int[length];
             for (int i = 0; i < length; i++) {
                 object[i] = buffer.getInt();
@@ -124,7 +125,7 @@ public class PrimitiveArraySerializers {
         @Override
         public void write(ByteBuffer buffer, long[] object) {
             int length = object.length;
-            buffer.putInt(length);
+            VarNumberIO.writePositiveVarInt(buffer, length);
             for (int i = 0; i < length; i++) {
                 buffer.putLong(object[i]);
             }
@@ -132,7 +133,7 @@ public class PrimitiveArraySerializers {
 
         @Override
         public long[] read(ByteBuffer buffer) {
-            int length = buffer.getInt();
+            int length = VarNumberIO.readPositiveVarInt(buffer);
             long[] object = new long[length];
             for (int i = 0; i < length; i++) {
                 object[i] = buffer.getLong();
@@ -146,7 +147,7 @@ public class PrimitiveArraySerializers {
         @Override
         public void write(ByteBuffer buffer, float[] object) {
             int length = object.length;
-            buffer.putInt(length);
+            VarNumberIO.writePositiveVarInt(buffer, length);
             for (int i = 0; i < length; i++) {
                 buffer.putFloat(object[i]);
             }
@@ -154,7 +155,7 @@ public class PrimitiveArraySerializers {
 
         @Override
         public float[] read(ByteBuffer buffer) {
-            int length = buffer.getInt();
+            int length = VarNumberIO.readPositiveVarInt(buffer);
             float[] object = new float[length];
             for (int i = 0; i < length; i++) {
                 object[i] = buffer.getFloat();
@@ -168,7 +169,7 @@ public class PrimitiveArraySerializers {
         @Override
         public void write(ByteBuffer buffer, double[] object) {
             int length = object.length;
-            buffer.putInt(length);
+            VarNumberIO.writePositiveVarInt(buffer, length);
             for (int i = 0; i < length; i++) {
                 buffer.putDouble(object[i]);
             }
@@ -176,7 +177,7 @@ public class PrimitiveArraySerializers {
 
         @Override
         public double[] read(ByteBuffer buffer) {
-            int length = buffer.getInt();
+            int length = VarNumberIO.readPositiveVarInt(buffer);
             double[] object = new double[length];
             for (int i = 0; i < length; i++) {
                 object[i] = buffer.getDouble();

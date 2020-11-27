@@ -45,7 +45,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void getComponentTypeHierarchyTest() throws NoSuchFieldException, SecurityException {
+    public void getComponentTypeHierarchyTest() throws NoSuchFieldException, SecurityException, UnsupportedComponentTypeHierarchyException {
         ComponentTypeHierarchy cth = ReflectionUtils.getComponentTypeHierarchy(getClass().getDeclaredField("arrayListMapStorm"));
         Assertions.assertEquals(List.class, cth.getType());
         Assertions.assertNull(cth.getKeys());

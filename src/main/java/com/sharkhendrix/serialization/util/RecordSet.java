@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Stores a set a key/value pairs, and is able to write and retrieve them by an
+ * Stores a set of key/value pairs, and is able to write and retrieve them by an
  * internal ID. Uses the {@link IntegerSerializerFactory} to use the smallest
  * number of byte required for writing / reading IDs.
  * 
@@ -30,7 +30,7 @@ public class RecordSet<K, V> {
     }
 
     public void initialize() {
-        idSerialier = IntegerSerializerFactory.build(recordsById.size() - 1);
+        idSerialier = IntegerSerializerFactory.build(recordsById.size() - 1, false);
     }
 
     public Record<V> get(K key) {

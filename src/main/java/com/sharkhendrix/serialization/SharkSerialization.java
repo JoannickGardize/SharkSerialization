@@ -1,6 +1,7 @@
 package com.sharkhendrix.serialization;
 
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
@@ -30,13 +31,15 @@ public class SharkSerialization implements SerializationContext {
     }
 
     /**
-     * Same as {@code registerObject(type, type, constructor)}.
+     * Calls {@code registerObject(type, type, constructor)}. See
+     * {@link #registerObject(Class, Class, Supplier)}
      * 
      * @param <T>         the object type
      * @param type        the class of the object
      * @param constructor the concrete no-args constructor to use
      * @return an instance of {@link ObjectSerializerConfigurationHelper} to
      *         optionally configure the newly created ObjectSerializer
+     * @see #registerObject(Class, Class, Supplier)
      */
     public <T> ObjectSerializerConfigurationHelper registerObject(Class<T> type, Supplier<? extends T> constructor) {
         return registerObject(type, type, constructor);
@@ -45,13 +48,13 @@ public class SharkSerialization implements SerializationContext {
     /**
      * Convenience method to register a class for serialization using an
      * {@link ObjectSerializer}. When the graph encounter the type
-     * {@code declarationType} (by field declared type of by configuration), it will
-     * be serialized using an ObjectSerializer of type {@code concreteType}.
+     * {@code declarationType} (by field declared type or by field configuration),
+     * it will be serialized using an ObjectSerializer of type {@code concreteType}.
      * 
      * @param <T>             the declared type
-     * @param <U>             the concrete type
+     * @param <U>             the concrete type for the {@link ObjectSerializer}
      * @param declarationType the declaration class
-     * @param concreteType    the concrete class
+     * @param concreteType    the concrete class for the {@link ObjectSerializer}
      * @param constructor     the concrete no-args constructor to use
      * @return an instance of {@link ObjectSerializerConfigurationHelper} to
      *         optionally configure the newly created ObjectSerializer
@@ -92,8 +95,9 @@ public class SharkSerialization implements SerializationContext {
         serializerRecordSet.register(type, serializer);
     }
 
+    @Override
     public void initialize() {
-        serializerRecordSet.forEachValues(s -> s.initialize(this));
+        SerializationContext.super.initialize();
         serializerRecordSet.initialize();
     }
 
@@ -141,4 +145,10 @@ public class SharkSerialization implements SerializationContext {
     public SerializerFactory getSerializerFactory() {
         return serializerFactory;
     }
+
+    @Override
+    public void forEachSerializer(Consumer<Serializer<?>> action) {
+        serializerRecordSet.forEachValues(action::accept);
+    }
+
 }

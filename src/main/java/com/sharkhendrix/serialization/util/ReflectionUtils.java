@@ -36,13 +36,21 @@ public class ReflectionUtils {
 
     /**
      * Calls {@link #getComponentTypeHierarchy(Field, Class...)} as follow:
-     * {@code getComponentTypeHierarchy(field, Collection.class, Map.class)}
+     * {@code getComponentTypeHierarchy(field, Collection.class, Map.class)}.
+     * <p>
+     * If the field has unsupported generic types, the return value will only
+     * contain one entry with {@link Field#getType()} as type.
      * 
      * @param field the field to get its component type hierarchy
      * @return the root of the component type hierarchy
+     * @throws UnsupportedComponentTypeHierarchyException
      */
     public static ComponentTypeHierarchy getComponentTypeHierarchy(Field field) {
-        return getComponentTypeHierarchy(field, Collection.class, Map.class);
+        try {
+            return getComponentTypeHierarchy(field, Collection.class, Map.class);
+        } catch (UnsupportedComponentTypeHierarchyException e) {
+            return new ComponentTypeHierarchy(field.getType());
+        }
     }
 
     /**
@@ -61,8 +69,9 @@ public class ReflectionUtils {
      *                                     this argument's class are considered as
      *                                     collection or map.
      * @return the root of the component type hierarchy
+     * @throws UnsupportedComponentTypeHierarchyException
      */
-    public static ComponentTypeHierarchy getComponentTypeHierarchy(Field field, Class<?>... genericComponentSuperclasses) {
+    public static ComponentTypeHierarchy getComponentTypeHierarchy(Field field, Class<?>... genericComponentSuperclasses) throws UnsupportedComponentTypeHierarchyException {
         try {
             return analyzeType(field.getGenericType(), Arrays.asList(genericComponentSuperclasses));
         } catch (ClassNotFoundException e) {
@@ -70,7 +79,8 @@ public class ReflectionUtils {
         }
     }
 
-    private static ComponentTypeHierarchy analyzeType(Type type, Collection<Class<?>> genericComponentSuperclasses) throws ClassNotFoundException {
+    private static ComponentTypeHierarchy analyzeType(Type type, Collection<Class<?>> genericComponentSuperclasses)
+            throws ClassNotFoundException, UnsupportedComponentTypeHierarchyException {
         if (type instanceof Class) {
             ComponentTypeHierarchy componentTypeHierarchy = new ComponentTypeHierarchy((Class<?>) type);
             if (componentTypeHierarchy.getType().isArray()) {

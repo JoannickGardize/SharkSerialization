@@ -1,6 +1,6 @@
 package com.sharkhendrix.serialization.util;
 
-public class UnsupportedComponentTypeHierarchyException extends RuntimeException {
+public class UnsupportedComponentTypeHierarchyException extends Exception {
 
     private static final long serialVersionUID = 1L;
 

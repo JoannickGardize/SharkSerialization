@@ -3,12 +3,34 @@ package com.sharkhendrix.serialization.util;
 import java.nio.ByteBuffer;
 
 /**
- * Factory of {@link IntegerSerializer}.
+ * Factory to build optimized {@link IntegerSerializer} according to the
+ * declared situation.
  * 
  * @author Joannick Gardize
  *
  */
 public class IntegerSerializerFactory {
+
+    /**
+     * Build an IntegerSerializer that takes advantage of the parameters
+     * informations.
+     * 
+     * @param absoluteMaxValue the potential maximum value required, in absolute
+     *                         value
+     * @param couldBeNegative  true if the value could be negative, false otherwise
+     * @return an IntegerSerializer which supports at least integers with absolute
+     *         value <= {@code absoluteMaxValue}
+     */
+    public static IntegerSerializer build(int absoluteMaxValue, boolean couldBeNegative) {
+        if (absoluteMaxValue <= Byte.MAX_VALUE) {
+            return BYTE_SERIALIZER;
+        } else if (couldBeNegative) {
+            return VAR_INT_SERIALIZER;
+        } else {
+            return POSITIVE_VAR_INT_SERIALIZER;
+        }
+
+    }
 
     private static final IntegerSerializer BYTE_SERIALIZER = new IntegerSerializer() {
 
@@ -23,52 +45,32 @@ public class IntegerSerializerFactory {
         }
     };
 
-    private static final IntegerSerializer SHORT_SERIALIZER = new IntegerSerializer() {
+    private static final IntegerSerializer POSITIVE_VAR_INT_SERIALIZER = new IntegerSerializer() {
 
         @Override
         public void write(ByteBuffer buffer, int value) {
-            buffer.putShort((short) value);
+            VarNumberIO.writePositiveVarInt(buffer, value);
         }
 
         @Override
         public int read(ByteBuffer buffer) {
-            return buffer.getShort();
+            return VarNumberIO.readPositiveVarInt(buffer);
         }
     };
 
-    private static final IntegerSerializer INT_SERIALIZER = new IntegerSerializer() {
+    private static final IntegerSerializer VAR_INT_SERIALIZER = new IntegerSerializer() {
 
         @Override
         public void write(ByteBuffer buffer, int value) {
-            buffer.putInt(value);
+            VarNumberIO.writeVarInt(buffer, value);
         }
 
         @Override
         public int read(ByteBuffer buffer) {
-            return buffer.getInt();
+            return VarNumberIO.readVarInt(buffer);
         }
     };
 
     private IntegerSerializerFactory() {
-    }
-
-    /**
-     * Returns an IntegerSerializer that uses the smallest number of bytes required
-     * according to the known maximum value required.
-     * 
-     * @param absoluteMaxValue the potential maximum value, in absolute
-     *                                  value
-     * @return an IntegerSerializer which supports integers with absolute value <=
-     *         {@code potentialAbsoluteMaxValue}
-     */
-    public static IntegerSerializer build(int absoluteMaxValue) {
-        if (absoluteMaxValue <= Byte.MAX_VALUE) {
-            return BYTE_SERIALIZER;
-        } else if (absoluteMaxValue <= Short.MAX_VALUE) {
-            return SHORT_SERIALIZER;
-        } else {
-            return INT_SERIALIZER;
-        }
-
     }
 }

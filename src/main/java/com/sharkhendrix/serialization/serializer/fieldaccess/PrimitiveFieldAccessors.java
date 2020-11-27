@@ -25,7 +25,7 @@ public class PrimitiveFieldAccessors {
         return fieldRecordSuppliers.get(field.getType()).apply(field);
     }
 
-    private static FieldAccessor byteFieldAccesor(Field field) {
+    public static FieldAccessor byteFieldAccesor(Field field) {
         return new FieldAccessor(field) {
 
             @Override
@@ -40,7 +40,7 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor charFieldAccessor(Field field) {
+    public static FieldAccessor charFieldAccessor(Field field) {
         return new FieldAccessor(field) {
 
             @Override
@@ -55,7 +55,7 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor booleanFieldAccessor(Field field) {
+    public static FieldAccessor booleanFieldAccessor(Field field) {
         return new FieldAccessor(field) {
 
             @Override
@@ -70,7 +70,7 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor shortFieldAccessor(Field field) {
+    public static FieldAccessor shortFieldAccessor(Field field) {
         return new FieldAccessor(field) {
 
             @Override
@@ -85,7 +85,7 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor intFieldAccessor(Field field) {
+    public static FieldAccessor intFieldAccessor(Field field) {
         return new FieldAccessor(field) {
 
             @Override
@@ -115,7 +115,7 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor floatFieldAccessor(Field field) {
+    public static FieldAccessor floatFieldAccessor(Field field) {
         return new FieldAccessor(field) {
 
             @Override
@@ -130,7 +130,7 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    private static FieldAccessor doubleFieldAccessor(Field field) {
+    public static FieldAccessor doubleFieldAccessor(Field field) {
         return new FieldAccessor(field) {
 
             @Override

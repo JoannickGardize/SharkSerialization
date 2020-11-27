@@ -4,6 +4,14 @@ import java.nio.ByteBuffer;
 
 import com.sharkhendrix.serialization.Serializer;
 
+/**
+ * Serializer of enum types. Not permissive to constants declaration order
+ * changes.
+ * 
+ * @author Joannick Gardize
+ *
+ * @param <T> the enum type
+ */
 public class EnumSerializer<T extends Enum<T>> implements Serializer<T> {
 
     private Class<T> type;
@@ -21,5 +29,4 @@ public class EnumSerializer<T extends Enum<T>> implements Serializer<T> {
     public T read(ByteBuffer buffer) {
         return type.getEnumConstants()[buffer.get()];
     }
-
 }

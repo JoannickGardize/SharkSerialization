@@ -2,7 +2,7 @@ package com.sharkhendrix.serialization.benchmark;
 
 import java.nio.ByteBuffer;
 
-import com.sharkhendrix.serialization.util.VarNumberUtils;
+import com.sharkhendrix.serialization.util.VarNumberIO;
 
 public class IntVsVarInt {
 
@@ -27,9 +27,9 @@ public class IntVsVarInt {
 
         for (int i = 0; i < 10_000_000; i++) {
             buffer.clear();
-            VarNumberUtils.writeVarInt(buffer, i % 64);
+            VarNumberIO.writePositiveVarInt(buffer, i % 64);
             buffer.flip();
-            VarNumberUtils.readVarInt(buffer);
+            VarNumberIO.readPositiveVarInt(buffer);
         }
     }
 }

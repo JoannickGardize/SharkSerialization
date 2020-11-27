@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.sharkhendrix.serialization.SerializationContext;
 import com.sharkhendrix.serialization.Serializer;
+import com.sharkhendrix.serialization.util.VarNumberIO;
 
 public class DefaultSerializers {
 
@@ -163,13 +164,13 @@ public class DefaultSerializers {
 
         @Override
         public void write(ByteBuffer buffer, String object) {
-            buffer.putShort((short) object.length());
+            VarNumberIO.writePositiveVarInt(buffer, object.length());
             buffer.put(object.getBytes(StandardCharsets.UTF_8));
         }
 
         @Override
         public String read(ByteBuffer buffer) {
-            byte[] data = new byte[buffer.getShort()];
+            byte[] data = new byte[VarNumberIO.readPositiveVarInt(buffer)];
             buffer.get(data);
             return new String(data, StandardCharsets.UTF_8);
         }

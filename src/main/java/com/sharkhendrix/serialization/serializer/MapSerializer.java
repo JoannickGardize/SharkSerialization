@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.function.IntFunction;
 
 import com.sharkhendrix.serialization.Serializer;
+import com.sharkhendrix.serialization.util.VarNumberIO;
 
 public class MapSerializer<T extends Map<Object, Object>> implements Serializer<T> {
 
@@ -22,8 +23,7 @@ public class MapSerializer<T extends Map<Object, Object>> implements Serializer<
 
     @Override
     public void write(ByteBuffer buffer, T object) {
-        int length = object.size();
-        buffer.putInt(length);
+        VarNumberIO.writePositiveVarInt(buffer, object.size());
         for (Entry<Object, Object> entry : object.entrySet()) {
             keySerializer.write(buffer, entry.getKey());
             valueSerializer.write(buffer, entry.getValue());
@@ -32,7 +32,7 @@ public class MapSerializer<T extends Map<Object, Object>> implements Serializer<
 
     @Override
     public T read(ByteBuffer buffer) {
-        int length = buffer.getInt();
+        int length = VarNumberIO.readPositiveVarInt(buffer);
         T object = constructor.apply(length);
         for (int i = 0; i < length; i++) {
             object.put(keySerializer.read(buffer), valueSerializer.read(buffer));

@@ -5,9 +5,8 @@ import com.sharkhendrix.serialization.serializer.SharedReferenceSerializer;
 
 /**
  * <p>
- * Object reference context interface, used to store and retrieve
- * multi-referenced instances. IDs are short values in order to minimize the
- * serialization size.
+ * Object reference context interface, to store and retrieve multi-referenced
+ * instances.
  * <p>
  * IDs must always be greater than zero to satisfy the internal process of
  * {@link SharedReferenceSerializer}.
@@ -38,36 +37,36 @@ public interface ReferenceContext {
      * Used when serializing an object's field annotated with
      * {@link SharedReference}
      * 
-     * @param o
+     * @param o the object to get its ID
      * @return the associated id of o, or -1 if there is no associated id.
      */
-    short retrieve(Object o);
+    int retrieve(Object o);
 
     /**
      * Used when serializing the first time an object's field annotated with
      * {@link SharedReference}. It must generate a different id for each different
-     * object. The id must always be greater than 0.
+     * object. The id must always be greater than 0 and be unique.
      * 
-     * @param o
+     * @param o the object to store
      * @return the newly associated id. The first generated id should starts from 1.
      */
-    short store(Object o);
+    int store(Object o);
 
     /**
      * Used when deserializing an object's field annotated with
      * {@link SharedReference}
      * 
      * @param id associated id, must be > 0
-     * @param o
+     * @param o  the object to store
      */
-    void store(short id, Object o);
+    void store(int id, Object o);
 
     /**
      * Used when deserializing an object's field annotated with
      * {@link SharedReference}
      * 
-     * @param id
-     * @return
+     * @param id the id of the object to retrieve
+     * @return the object having the given id.
      */
-    Object retrieve(short id);
+    Object retrieve(int id);
 }
