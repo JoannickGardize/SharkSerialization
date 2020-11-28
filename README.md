@@ -58,7 +58,7 @@ data size : 2 bytes
 data : 42
 ```
 SharkSerialization requires registration of every classes of the graph, the order is important and must be the same for serialization and deserialization. Constructors are provided manually to avoid the costly `Constructor.newInstance()` call.
-The data is 2 bytes length : 1 byte for the integer (varying number compression), and  1 byte of overhead for the root object's type.
+The data is 2 bytes length : 1 byte for the integer (variable-length compression), and  1 byte of overhead for the root object's type.
 
 ## Graph configuration
 
