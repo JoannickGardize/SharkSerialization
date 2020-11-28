@@ -13,6 +13,7 @@ public class ConfigurationNode {
 
     private boolean sharedReference = false;
     private boolean undefinedType = false;
+    private boolean ignore = false;
 
     private ConfigurationNode elementsConfiguration = null;
     private ConfigurationNode keysConfiguration = null;
@@ -40,6 +41,14 @@ public class ConfigurationNode {
 
     public void setUndefinedType(boolean undefinedType) {
         this.undefinedType = undefinedType;
+    }
+
+    public boolean isIgnore() {
+        return ignore;
+    }
+
+    public void setIgnore(boolean ignore) {
+        this.ignore = ignore;
     }
 
     public ConfigurationNode getElementsConfiguration() {

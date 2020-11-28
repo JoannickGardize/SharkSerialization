@@ -105,7 +105,7 @@ public class PrimitiveArraySerializers {
             int length = object.length;
             VarNumberIO.writePositiveVarInt(buffer, length);
             for (int i = 0; i < length; i++) {
-                buffer.putInt(object[i]);
+                VarNumberIO.writeVarInt(buffer, object[i]);
             }
         }
 
@@ -114,7 +114,7 @@ public class PrimitiveArraySerializers {
             int length = VarNumberIO.readPositiveVarInt(buffer);
             int[] object = new int[length];
             for (int i = 0; i < length; i++) {
-                object[i] = buffer.getInt();
+                object[i] = VarNumberIO.readVarInt(buffer);
             }
             return object;
         }
@@ -127,7 +127,7 @@ public class PrimitiveArraySerializers {
             int length = object.length;
             VarNumberIO.writePositiveVarInt(buffer, length);
             for (int i = 0; i < length; i++) {
-                buffer.putLong(object[i]);
+                VarNumberIO.writeVarLong(buffer, object[i]);
             }
         }
 
@@ -136,7 +136,7 @@ public class PrimitiveArraySerializers {
             int length = VarNumberIO.readPositiveVarInt(buffer);
             long[] object = new long[length];
             for (int i = 0; i < length; i++) {
-                object[i] = buffer.getLong();
+                object[i] = VarNumberIO.readVarLong(buffer);
             }
             return object;
         }

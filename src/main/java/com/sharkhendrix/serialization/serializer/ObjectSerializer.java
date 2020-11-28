@@ -100,7 +100,10 @@ public class ObjectSerializer<T> implements Serializer<T> {
             if (field.getType().isPrimitive()) {
                 fieldRecordList.add(PrimitiveFieldAccessors.get(field));
             } else {
-                fieldRecordList.add(new ObjectFieldAccessor(field, context.getSerializerFactory().build(field, fieldConfigurations.get(field.getName()))));
+                ConfigurationNode configuration = fieldConfigurations.get(field.getName());
+                if (configuration == null || !configuration.isIgnore()) {
+                    fieldRecordList.add(new ObjectFieldAccessor(field, context.getSerializerFactory().build(field, configuration)));
+                }
             }
         }
     }

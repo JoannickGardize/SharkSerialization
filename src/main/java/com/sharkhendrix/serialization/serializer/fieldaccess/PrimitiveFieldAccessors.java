@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.sharkhendrix.serialization.util.VarNumberIO;
+
 public class PrimitiveFieldAccessors {
 
     private static Map<Class<?>, Function<Field, FieldAccessor>> fieldRecordSuppliers = new HashMap<>();
@@ -90,12 +92,12 @@ public class PrimitiveFieldAccessors {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
-                buffer.putInt(field.getInt(object));
+                VarNumberIO.writeVarInt(buffer, field.getInt(object));
             }
 
             @Override
             public void readField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
-                field.setInt(object, buffer.getInt());
+                field.setInt(object, VarNumberIO.readVarInt(buffer));
             }
         };
     }
@@ -105,12 +107,12 @@ public class PrimitiveFieldAccessors {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
-                buffer.putLong(field.getLong(object));
+                VarNumberIO.writeVarLong(buffer, field.getLong(object));
             }
 
             @Override
             public void readField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
-                field.setLong(object, buffer.getLong());
+                field.setLong(object, VarNumberIO.readVarLong(buffer));
             }
         };
     }

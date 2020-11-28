@@ -1,6 +1,18 @@
 package com.sharkhendrix.synchronization;
 
-public interface Synchronizable {
+public abstract class Synchronizable {
 
-    boolean requiresSync();
+    private byte syncFlag;
+
+    public byte getSyncFlag() {
+        return syncFlag;
+    }
+
+    protected void requireSync() {
+        requireSync(0);
+    }
+
+    protected void requireSync(int groupNumber) {
+        syncFlag |= 1 << groupNumber;
+    }
 }
