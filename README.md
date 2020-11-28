@@ -13,11 +13,11 @@ SharkSerialization is an object graph serialization & synchronization framework 
 
 The target usage is to share real time based data. It is not recommanded for long term data storage, since any structural changes in a class of the graph will break readability of a previously serialized data.
 
-## Quickstart
+## Getting started
 
 Let's take a simple example : 
 ```java
-public class Quickstart {
+public class GettingStarted {
 
     static class A {
         B b;
@@ -45,20 +45,20 @@ public class Quickstart {
         serialization.write(buffer, a);
 
         buffer.flip();
-        System.out.println("data size : " + buffer.limit());
+        System.out.println("data size : " + buffer.limit() + " bytes");
 
-        A deserializedA = (A) serialization.read(buffer);
-        System.out.println("message : " + deserializedA.b.data);
+        A a2 = (A) serialization.read(buffer);
+        System.out.println("data : " + a2.b.data);
     }
 }
 ```
 Console output :
 ```console
-data size : 6
-message : 42
+data size : 2 bytes
+data : 42
 ```
 SharkSerialization requires registration of every classes of the graph, the order is important and must be the same for serialization and deserialization. Constructors are provided manually to avoid the costly `Constructor.newInstance()` call.
-The data is 6 bytes length : 4 bytes for the integer, and  2 bytes of overhead for the root object's type.
+The data is 2 bytes length : 1 byte for the integer (varying number compression), and  1 byte of overhead for the root object's type.
 
 ## Graph configuration
 
