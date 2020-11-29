@@ -6,25 +6,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.sharkhendrix.serialization.util.VarNumberIO;
+import com.sharkhendrix.serialization.annotation.VarLenStrategy;
+import com.sharkhendrix.serialization.serializer.VarLenTypeKey;
+import com.sharkhendrix.util.VarLenNumberIO;
 
 public class PrimitiveFieldAccessors {
 
-    private static Map<Class<?>, Function<Field, FieldAccessor>> fieldRecordSuppliers = new HashMap<>();
+    private static Map<VarLenTypeKey, Function<Field, FieldAccessor>> fieldRecordSuppliers = new HashMap<>();
 
     static {
-        fieldRecordSuppliers.put(byte.class, PrimitiveFieldAccessors::byteFieldAccesor);
-        fieldRecordSuppliers.put(char.class, PrimitiveFieldAccessors::charFieldAccessor);
-        fieldRecordSuppliers.put(boolean.class, PrimitiveFieldAccessors::booleanFieldAccessor);
-        fieldRecordSuppliers.put(short.class, PrimitiveFieldAccessors::shortFieldAccessor);
-        fieldRecordSuppliers.put(int.class, PrimitiveFieldAccessors::intFieldAccessor);
-        fieldRecordSuppliers.put(long.class, PrimitiveFieldAccessors::longFieldAccessor);
-        fieldRecordSuppliers.put(float.class, PrimitiveFieldAccessors::floatFieldAccessor);
-        fieldRecordSuppliers.put(double.class, PrimitiveFieldAccessors::doubleFieldAccessor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(byte.class, VarLenStrategy.NONE), PrimitiveFieldAccessors::byteFieldAccesor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(char.class, VarLenStrategy.NONE), PrimitiveFieldAccessors::charFieldAccessor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(boolean.class, VarLenStrategy.NONE), PrimitiveFieldAccessors::booleanFieldAccessor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(short.class, VarLenStrategy.NONE), PrimitiveFieldAccessors::shortFieldAccessor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(int.class, VarLenStrategy.NORMAL), PrimitiveFieldAccessors::intNormalFieldAccessor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(int.class, VarLenStrategy.POSITIVE), PrimitiveFieldAccessors::intPositiveFieldAccessor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(int.class, VarLenStrategy.NONE), PrimitiveFieldAccessors::intNoneFieldAccessor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(long.class, VarLenStrategy.NORMAL), PrimitiveFieldAccessors::longNormalFieldAccessor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(long.class, VarLenStrategy.POSITIVE), PrimitiveFieldAccessors::longPositiveFieldAccessor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(long.class, VarLenStrategy.NONE), PrimitiveFieldAccessors::longNoneFieldAccessor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(float.class, VarLenStrategy.NONE), PrimitiveFieldAccessors::floatFieldAccessor);
+        fieldRecordSuppliers.put(new VarLenTypeKey(double.class, VarLenStrategy.NONE), PrimitiveFieldAccessors::doubleFieldAccessor);
     }
 
-    public static FieldAccessor get(Field field) {
-        return fieldRecordSuppliers.get(field.getType()).apply(field);
+    public static FieldAccessor get(Field field, VarLenStrategy varLenStrategy) {
+        Function<Field, FieldAccessor> producer = fieldRecordSuppliers.get(new VarLenTypeKey(field.getType(), varLenStrategy));
+        if (producer == null) {
+            producer = fieldRecordSuppliers.get(new VarLenTypeKey(field.getType(), VarLenStrategy.NONE));
+        }
+        return producer.apply(field);
     }
 
     public static FieldAccessor byteFieldAccesor(Field field) {
@@ -87,32 +97,92 @@ public class PrimitiveFieldAccessors {
         };
     }
 
-    public static FieldAccessor intFieldAccessor(Field field) {
+    public static FieldAccessor intNormalFieldAccessor(Field field) {
         return new FieldAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
-                VarNumberIO.writeVarInt(buffer, field.getInt(object));
+                VarLenNumberIO.writeVarInt(buffer, field.getInt(object));
             }
 
             @Override
             public void readField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
-                field.setInt(object, VarNumberIO.readVarInt(buffer));
+                field.setInt(object, VarLenNumberIO.readVarInt(buffer));
             }
         };
     }
 
-    public static FieldAccessor longFieldAccessor(Field field) {
+    public static FieldAccessor intPositiveFieldAccessor(Field field) {
         return new FieldAccessor(field) {
 
             @Override
             public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
-                VarNumberIO.writeVarLong(buffer, field.getLong(object));
+                VarLenNumberIO.writePositiveVarInt(buffer, field.getInt(object));
             }
 
             @Override
             public void readField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
-                field.setLong(object, VarNumberIO.readVarLong(buffer));
+                field.setInt(object, VarLenNumberIO.readPositiveVarInt(buffer));
+            }
+        };
+    }
+
+    public static FieldAccessor intNoneFieldAccessor(Field field) {
+        return new FieldAccessor(field) {
+
+            @Override
+            public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
+                buffer.putInt(field.getInt(object));
+            }
+
+            @Override
+            public void readField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
+                field.setInt(object, buffer.getInt());
+            }
+        };
+    }
+
+    public static FieldAccessor longNormalFieldAccessor(Field field) {
+        return new FieldAccessor(field) {
+
+            @Override
+            public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
+                VarLenNumberIO.writeVarLong(buffer, field.getLong(object));
+            }
+
+            @Override
+            public void readField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
+                field.setLong(object, VarLenNumberIO.readVarLong(buffer));
+            }
+        };
+    }
+
+    public static FieldAccessor longPositiveFieldAccessor(Field field) {
+        return new FieldAccessor(field) {
+
+            @Override
+            public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
+                VarLenNumberIO.writePositiveVarLong(buffer, field.getLong(object));
+            }
+
+            @Override
+            public void readField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
+                field.setLong(object, VarLenNumberIO.readPositiveVarLong(buffer));
+            }
+        };
+    }
+
+    public static FieldAccessor longNoneFieldAccessor(Field field) {
+        return new FieldAccessor(field) {
+
+            @Override
+            public void writeField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
+                buffer.putLong(field.getLong(object));
+            }
+
+            @Override
+            public void readField(ByteBuffer buffer, Object object) throws IllegalArgumentException, IllegalAccessException {
+                field.setLong(object, buffer.getLong());
             }
         };
     }

@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization.util;
+package com.sharkhendrix.util;
 
 import java.nio.ByteBuffer;
 
@@ -49,12 +49,12 @@ public class IntegerSerializerFactory {
 
         @Override
         public void write(ByteBuffer buffer, int value) {
-            VarNumberIO.writePositiveVarInt(buffer, value);
+            VarLenNumberIO.writePositiveVarInt(buffer, value);
         }
 
         @Override
         public int read(ByteBuffer buffer) {
-            return VarNumberIO.readPositiveVarInt(buffer);
+            return VarLenNumberIO.readPositiveVarInt(buffer);
         }
     };
 
@@ -62,12 +62,12 @@ public class IntegerSerializerFactory {
 
         @Override
         public void write(ByteBuffer buffer, int value) {
-            VarNumberIO.writeVarInt(buffer, value);
+            VarLenNumberIO.writeVarInt(buffer, value);
         }
 
         @Override
         public int read(ByteBuffer buffer) {
-            return VarNumberIO.readVarInt(buffer);
+            return VarLenNumberIO.readVarInt(buffer);
         }
     };
 

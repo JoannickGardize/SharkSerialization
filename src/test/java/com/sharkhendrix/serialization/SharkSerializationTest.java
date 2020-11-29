@@ -371,6 +371,24 @@ public class SharkSerializationTest {
         Assertions.assertEquals(object.aString, object2.aString);
     }
 
+    @Test
+    public void ingoreTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.registerObject(A.class, A::new).configure("b").ignore();
+        serialization.registerObject(B.class, B::new);
+        serialization.registerObject(C.class, C::new);
+        serialization.initialize();
+
+        A a = new A();
+        a.b = new B();
+        a.c = new C();
+
+        A a2 = writeAndRead(serialization, a);
+
+        Assertions.assertNull(a2.b);
+        Assertions.assertNotNull(a2.c);
+    }
+
     private void testPrimitiveClass(SharkSerialization serialization) {
         PrimitiveClass a = new PrimitiveClass();
         a.c = 'a';

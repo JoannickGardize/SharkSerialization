@@ -9,10 +9,10 @@ import com.sharkhendrix.serialization.serializer.DefaultSerializers;
 import com.sharkhendrix.serialization.serializer.EnumSerializer;
 import com.sharkhendrix.serialization.serializer.ObjectSerializer;
 import com.sharkhendrix.serialization.serializer.ObjectSerializerConfigurationHelper;
-import com.sharkhendrix.serialization.serializer.factory.SerializerFactory;
-import com.sharkhendrix.serialization.serializer.factory.SerializerFactoryDefaultConfigurator;
-import com.sharkhendrix.serialization.util.Record;
-import com.sharkhendrix.serialization.util.RecordSet;
+import com.sharkhendrix.serialization.serializer.factory.FieldSerializerFactory;
+import com.sharkhendrix.serialization.serializer.factory.FieldSerializerFactoryDefaultConfigurator;
+import com.sharkhendrix.util.Record;
+import com.sharkhendrix.util.RecordSet;
 
 public class SharkSerialization implements SerializationContext {
 
@@ -22,12 +22,12 @@ public class SharkSerialization implements SerializationContext {
 
     private Record<Serializer<?>> nullSerializerRecord;
 
-    private SerializerFactory serializerFactory = new SerializerFactory();
+    private FieldSerializerFactory serializerFactory = new FieldSerializerFactory();
 
     public SharkSerialization() {
         DefaultSerializers.registerAll(this);
         nullSerializerRecord = serializerRecordSet.get(null);
-        new SerializerFactoryDefaultConfigurator(this).configure();
+        new FieldSerializerFactoryDefaultConfigurator(this).configure();
     }
 
     /**
@@ -78,7 +78,7 @@ public class SharkSerialization implements SerializationContext {
 
     /**
      * Convenience method to register a constructor for special use. By default,
-     * according to the {@link SerializerFactoryDefaultConfigurator}, this is the
+     * according to the {@link FieldSerializerFactoryDefaultConfigurator}, this is the
      * case for all non-primitive arrays, Lists, Sets and Maps.
      * 
      * @param <T>         the class type
@@ -142,7 +142,7 @@ public class SharkSerialization implements SerializationContext {
     }
 
     @Override
-    public SerializerFactory getSerializerFactory() {
+    public FieldSerializerFactory getFieldSerializerFactory() {
         return serializerFactory;
     }
 

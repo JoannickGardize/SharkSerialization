@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.sharkhendrix.serialization.annotation.ElementsConfiguration.Type;
 import com.sharkhendrix.serialization.serializer.ConfigurationNode;
 
 public class AnnotationConfigurationFactoryTest {
@@ -13,12 +14,12 @@ public class AnnotationConfigurationFactoryTest {
     @ConcreteType(ArrayList.class)
     @SharedReference
     @ElementsConfiguration(concreteType = HashMap.class)
-    @ElementsConfiguration(type = ElementsConfigurationType.KEYS, concreteType = Integer.class, sharedReference = true)
+    @ElementsConfiguration(type = Type.KEYS, concreteType = Integer.class, sharedReference = true)
     @ElementsConfiguration(concreteType = Character.class)
     @ElementsConfiguration(concreteType = Short.class)
-    @ElementsConfiguration(type = ElementsConfigurationType.VALUES, concreteType = Byte.class)
-    @ElementsConfiguration(type = ElementsConfigurationType.KEYS, concreteType = Double.class)
-    @ElementsConfiguration(type = ElementsConfigurationType.VALUES, concreteType = Long.class)
+    @ElementsConfiguration(type = Type.VALUES, concreteType = Byte.class)
+    @ElementsConfiguration(type = Type.KEYS, concreteType = Double.class)
+    @ElementsConfiguration(type = Type.VALUES, concreteType = Long.class)
     private Object field;
 
     @Test

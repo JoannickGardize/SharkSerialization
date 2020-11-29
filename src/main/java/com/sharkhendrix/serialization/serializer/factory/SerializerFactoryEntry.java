@@ -7,7 +7,7 @@ import com.sharkhendrix.serialization.Serializer;
 import com.sharkhendrix.serialization.serializer.ConfigurationNode;
 
 class SerializerFactoryEntry {
-
+// TODO Generic conditonnal factory ? 
     private Predicate<ConfigurationNode> condition;
     private Function<ConfigurationNode, Serializer<?>> builder;
 

@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.sharkhendrix.serialization.annotation.ConcreteType;
 import com.sharkhendrix.serialization.annotation.ElementsConfiguration;
-import com.sharkhendrix.serialization.annotation.ElementsConfigurationType;
+import com.sharkhendrix.serialization.annotation.ElementsConfiguration.Type;
 import com.sharkhendrix.serialization.annotation.SharedReference;
 import com.sharkhendrix.serialization.annotation.UndefinedType;
 
@@ -293,9 +293,9 @@ public class SharkSerializationTestModel {
 
     public static class MapClass {
 
-        @ElementsConfiguration(type = ElementsConfigurationType.KEYS, concreteType = List.class)
+        @ElementsConfiguration(type = Type.KEYS, concreteType = List.class)
         @ElementsConfiguration(concreteType = String.class)
-        @ElementsConfiguration(type = ElementsConfigurationType.VALUES)
+        @ElementsConfiguration(type = Type.VALUES)
         Map<Object, Map<String, String>> map;
     }
 

@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization.util;
+package com.sharkhendrix.util;
 
 public class Record<T> {
 

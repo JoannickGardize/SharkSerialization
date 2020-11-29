@@ -28,7 +28,10 @@ public class AnnotationConfigurationFactory {
         }
         node.setSharedReference(field.isAnnotationPresent(SharedReference.class));
         node.setUndefinedType(field.isAnnotationPresent(UndefinedType.class));
-
+        VarLen varLen = field.getAnnotation(VarLen.class);
+        if (varLen != null) {
+            node.setVarLenStrategy(varLen.value());
+        }
         return node;
     }
 
@@ -71,6 +74,7 @@ public class AnnotationConfigurationFactory {
         }
         node.setSharedReference(annotation.sharedReference());
         node.setUndefinedType(annotation.undefinedType());
+        node.setVarLenStrategy(annotation.varLenStrategy());
         return node;
     }
 

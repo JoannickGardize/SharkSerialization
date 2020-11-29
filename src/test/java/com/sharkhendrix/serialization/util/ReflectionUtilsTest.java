@@ -8,6 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import com.sharkhendrix.util.ComponentTypeHierarchy;
+import com.sharkhendrix.util.ReflectionUtils;
+import com.sharkhendrix.util.UnsupportedComponentTypeHierarchyException;
+
 public class ReflectionUtilsTest {
 
     private static @interface AnAnnototation {

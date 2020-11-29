@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.function.IntFunction;
 
 import com.sharkhendrix.serialization.Serializer;
-import com.sharkhendrix.serialization.util.VarNumberIO;
+import com.sharkhendrix.util.VarLenNumberIO;
 
 public class ArraySerializer<T> implements Serializer<T> {
 
@@ -21,7 +21,7 @@ public class ArraySerializer<T> implements Serializer<T> {
     @Override
     public void write(ByteBuffer buffer, T object) {
         int length = Array.getLength(object);
-        VarNumberIO.writePositiveVarInt(buffer, length);
+        VarLenNumberIO.writePositiveVarInt(buffer, length);
         for (int i = 0; i < length; i++) {
             elementSerializer.write(buffer, Array.get(object, i));
         }
@@ -29,7 +29,7 @@ public class ArraySerializer<T> implements Serializer<T> {
 
     @Override
     public T read(ByteBuffer buffer) {
-        int length = VarNumberIO.readPositiveVarInt(buffer);
+        int length = VarLenNumberIO.readPositiveVarInt(buffer);
         T object = constructor.apply(length);
         for (int i = 0; i < length; i++) {
             Array.set(object, i, elementSerializer.read(buffer));

@@ -19,11 +19,17 @@ import java.lang.annotation.Target;
 @Repeatable(ElementsConfigurationGroup.class)
 public @interface ElementsConfiguration {
 
-    ElementsConfigurationType type() default ElementsConfigurationType.ELEMENTS;
+    public enum Type {
+        ELEMENTS, KEYS, VALUES;
+    }
+
+    Type type() default Type.ELEMENTS;
 
     boolean sharedReference() default false;
 
     boolean undefinedType() default false;
 
     Class<?> concreteType() default void.class;
+
+    VarLenStrategy varLenStrategy() default VarLenStrategy.NORMAL;
 }

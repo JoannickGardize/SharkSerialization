@@ -1,5 +1,7 @@
 package com.sharkhendrix.serialization.serializer;
 
+import com.sharkhendrix.serialization.annotation.VarLenStrategy;
+
 /**
  * Serialization configuration of a class field and its array / collection / map
  * sub-elements.
@@ -14,6 +16,7 @@ public class ConfigurationNode {
     private boolean sharedReference = false;
     private boolean undefinedType = false;
     private boolean ignore = false;
+    private VarLenStrategy varLenStrategy = VarLenStrategy.NORMAL;
 
     private ConfigurationNode elementsConfiguration = null;
     private ConfigurationNode keysConfiguration = null;
@@ -51,6 +54,14 @@ public class ConfigurationNode {
         this.ignore = ignore;
     }
 
+    public VarLenStrategy getVarLenStrategy() {
+        return varLenStrategy;
+    }
+
+    public void setVarLenStrategy(VarLenStrategy varLenStrategy) {
+        this.varLenStrategy = varLenStrategy;
+    }
+
     public ConfigurationNode getElementsConfiguration() {
         return elementsConfiguration;
     }
@@ -74,5 +85,4 @@ public class ConfigurationNode {
     public void setValuesConfiguration(ConfigurationNode valuesConfiguration) {
         this.valuesConfiguration = valuesConfiguration;
     }
-
 }

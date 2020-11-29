@@ -11,7 +11,7 @@ import java.util.Set;
 
 import com.sharkhendrix.serialization.SerializationContext;
 import com.sharkhendrix.serialization.Serializer;
-import com.sharkhendrix.serialization.util.VarNumberIO;
+import com.sharkhendrix.util.VarLenNumberIO;
 
 public class DefaultSerializers {
 
@@ -33,13 +33,13 @@ public class DefaultSerializers {
         serialization.register(char[].class, new PrimitiveArraySerializers.CharArraySerializer());
         serialization.register(boolean[].class, new PrimitiveArraySerializers.BooleanArraySerializer());
         serialization.register(short[].class, new PrimitiveArraySerializers.ShortArraySerializer());
-        serialization.register(int[].class, new PrimitiveArraySerializers.IntArraySerializer());
-        serialization.register(long[].class, new PrimitiveArraySerializers.LongArraySerializer());
+        serialization.register(int[].class, new PrimitiveArraySerializers.IntPositiveArraySerializer());
+        serialization.register(long[].class, new PrimitiveArraySerializers.LongNormalArraySerializer());
         serialization.register(float[].class, new PrimitiveArraySerializers.FloatArraySerializer());
         serialization.register(double[].class, new PrimitiveArraySerializers.DoubleArraySerializer());
-        serialization.getSerializerFactory().registerSizeableConstructor(Set.class, HashSet::new);
-        serialization.getSerializerFactory().registerSizeableConstructor(List.class, ArrayList::new);
-        serialization.getSerializerFactory().registerSizeableConstructor(Map.class, HashMap::new);
+        serialization.getFieldSerializerFactory().registerSizeableConstructor(Set.class, HashSet::new);
+        serialization.getFieldSerializerFactory().registerSizeableConstructor(List.class, ArrayList::new);
+        serialization.getFieldSerializerFactory().registerSizeableConstructor(Map.class, HashMap::new);
     }
 
     public static class NullSerializer implements Serializer<Object> {
@@ -112,12 +112,12 @@ public class DefaultSerializers {
 
         @Override
         public void write(ByteBuffer buffer, Integer object) {
-            buffer.putInt(object);
+            VarLenNumberIO.writeVarInt(buffer, object);
         }
 
         @Override
         public Integer read(ByteBuffer buffer) {
-            return buffer.getInt();
+            return VarLenNumberIO.readVarInt(buffer);
         }
     }
 
@@ -125,12 +125,12 @@ public class DefaultSerializers {
 
         @Override
         public void write(ByteBuffer buffer, Long object) {
-            buffer.putLong(object);
+            VarLenNumberIO.writeVarLong(buffer, object);
         }
 
         @Override
         public Long read(ByteBuffer buffer) {
-            return buffer.getLong();
+            return VarLenNumberIO.readVarLong(buffer);
         }
     }
 
@@ -164,13 +164,13 @@ public class DefaultSerializers {
 
         @Override
         public void write(ByteBuffer buffer, String object) {
-            VarNumberIO.writePositiveVarInt(buffer, object.length());
+            VarLenNumberIO.writePositiveVarInt(buffer, object.length());
             buffer.put(object.getBytes(StandardCharsets.UTF_8));
         }
 
         @Override
         public String read(ByteBuffer buffer) {
-            byte[] data = new byte[VarNumberIO.readPositiveVarInt(buffer)];
+            byte[] data = new byte[VarLenNumberIO.readPositiveVarInt(buffer)];
             buffer.get(data);
             return new String(data, StandardCharsets.UTF_8);
         }

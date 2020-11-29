@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.function.IntFunction;
 
 import com.sharkhendrix.serialization.Serializer;
-import com.sharkhendrix.serialization.util.VarNumberIO;
+import com.sharkhendrix.util.VarLenNumberIO;
 
 public class CollectionSerializer<T extends Collection<Object>> implements Serializer<T> {
 
@@ -21,7 +21,7 @@ public class CollectionSerializer<T extends Collection<Object>> implements Seria
     @Override
     public void write(ByteBuffer buffer, T object) {
         int length = object.size();
-        VarNumberIO.writePositiveVarInt(buffer, length);
+        VarLenNumberIO.writePositiveVarInt(buffer, length);
         for (Object element : object) {
             elementSerializer.write(buffer, element);
         }
@@ -29,7 +29,7 @@ public class CollectionSerializer<T extends Collection<Object>> implements Seria
 
     @Override
     public T read(ByteBuffer buffer) {
-        int length = VarNumberIO.readPositiveVarInt(buffer);
+        int length = VarLenNumberIO.readPositiveVarInt(buffer);
         T object = constructor.apply(length);
         for (int i = 0; i < length; i++) {
             object.add(elementSerializer.read(buffer));

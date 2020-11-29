@@ -3,7 +3,7 @@ package com.sharkhendrix.serialization;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import com.sharkhendrix.serialization.serializer.factory.SerializerFactory;
+import com.sharkhendrix.serialization.serializer.factory.FieldSerializerFactory;
 
 /**
  * <p>
@@ -12,8 +12,8 @@ import com.sharkhendrix.serialization.serializer.factory.SerializerFactory;
  * Instances of registered classes are able to be serialized / deserialized,
  * using the serializer to use as overhead information.
  * <p>
- * Provides a {@link ReferenceContext} and a {@link SerializerFactory} to be
- * optionally used by serializers.
+ * Provides a {@link ReferenceContext} and a {@link FieldSerializerFactory} to
+ * be optionally used by serializers.
  * 
  * @author Joannick Gardize
  *
@@ -62,14 +62,14 @@ public interface SerializationContext {
     Serializer<?> readType(ByteBuffer buffer);
 
     /**
-     * @return the reference context associated to this serialization context
+     * @return the ReferenceContext associated to this serialization context
      */
     ReferenceContext getReferenceContext();
 
     /**
-     * @return the serializer factory associated to this serialization context
+     * @return the FieldSerializerFactory associated to this serialization context
      */
-    SerializerFactory getSerializerFactory();
+    FieldSerializerFactory getFieldSerializerFactory();
 
     /**
      * Calls the action for each registered serializer

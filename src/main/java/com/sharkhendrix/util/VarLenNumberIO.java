@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization.util;
+package com.sharkhendrix.util;
 
 import java.nio.ByteBuffer;
 
@@ -34,7 +34,7 @@ import java.nio.ByteBuffer;
  * @author Joannick Gardize
  *
  */
-public class VarNumberIO {
+public class VarLenNumberIO {
 
     private static final int ONE_BYTE_DATA_SIZE = 8 * 1 - 1;
     private static final int TWO_BYTES_DATA_SIZE = 8 * 2 - 2;

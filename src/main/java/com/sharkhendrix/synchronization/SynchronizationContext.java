@@ -1,5 +1,5 @@
 package com.sharkhendrix.synchronization;
 
-public class SynchronizationContext {
+public abstract class SynchronizationContext {
 
 }

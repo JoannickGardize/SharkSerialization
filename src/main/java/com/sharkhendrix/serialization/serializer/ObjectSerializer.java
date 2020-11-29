@@ -15,9 +15,7 @@ import com.sharkhendrix.serialization.Serializer;
 import com.sharkhendrix.serialization.SharkSerializationConfigurationException;
 import com.sharkhendrix.serialization.SharkSerializationException;
 import com.sharkhendrix.serialization.serializer.fieldaccess.FieldAccessor;
-import com.sharkhendrix.serialization.serializer.fieldaccess.ObjectFieldAccessor;
-import com.sharkhendrix.serialization.serializer.fieldaccess.PrimitiveFieldAccessors;
-import com.sharkhendrix.serialization.util.ReflectionUtils;
+import com.sharkhendrix.util.ReflectionUtils;
 
 public class ObjectSerializer<T> implements Serializer<T> {
 
@@ -97,13 +95,9 @@ public class ObjectSerializer<T> implements Serializer<T> {
             if (Modifier.isTransient(field.getModifiers())) {
                 continue;
             }
-            if (field.getType().isPrimitive()) {
-                fieldRecordList.add(PrimitiveFieldAccessors.get(field));
-            } else {
-                ConfigurationNode configuration = fieldConfigurations.get(field.getName());
-                if (configuration == null || !configuration.isIgnore()) {
-                    fieldRecordList.add(new ObjectFieldAccessor(field, context.getSerializerFactory().build(field, configuration)));
-                }
+            ConfigurationNode configuration = fieldConfigurations.get(field.getName());
+            if (configuration == null || !configuration.isIgnore()) {
+                fieldRecordList.add(context.getFieldSerializerFactory().buildFieldAccessor(field, configuration));
             }
         }
     }

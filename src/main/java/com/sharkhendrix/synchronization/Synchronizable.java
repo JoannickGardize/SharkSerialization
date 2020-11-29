@@ -9,10 +9,11 @@ public abstract class Synchronizable {
     }
 
     protected void requireSync() {
-        requireSync(0);
+        syncFlag |= 1;
     }
 
-    protected void requireSync(int groupNumber) {
-        syncFlag |= 1 << groupNumber;
+    protected void requireSync(int syncChunkNumber) {
+        syncFlag |= 1 << syncChunkNumber;
     }
+
 }

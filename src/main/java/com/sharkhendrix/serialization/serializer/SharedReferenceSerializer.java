@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import com.sharkhendrix.serialization.ReferenceContext;
 import com.sharkhendrix.serialization.Serializer;
-import com.sharkhendrix.serialization.util.VarNumberIO;
+import com.sharkhendrix.util.VarLenNumberIO;
 
 /**
  * Decorates a {@link Serializer} to keep in memory multiple references of the
@@ -34,17 +34,17 @@ public class SharedReferenceSerializer<T> implements Serializer<T> {
         int id = referenceContext.retrieve(object);
         if (id == -1) {
             id = referenceContext.store(object);
-            VarNumberIO.writeVarInt(buffer, -id);
+            VarLenNumberIO.writeVarInt(buffer, -id);
             serializer.write(buffer, object);
         } else {
-            VarNumberIO.writeVarInt(buffer, id);
+            VarLenNumberIO.writeVarInt(buffer, id);
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public T read(ByteBuffer buffer) {
-        int id = VarNumberIO.readVarInt(buffer);
+        int id = VarLenNumberIO.readVarInt(buffer);
         if (id < 0) {
             T object = serializer.read(buffer, o -> referenceContext.store(-id, o));
             return object;

@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * <p>
  * Utility object to configure an {@link ObjectSerializer} in a chaining way.
  * This is an alternative and equivalent method of configuration to the
  * annotation way.
+ * <p>
+ * Manage a kind of "cursor" called {@code current node}, which is the actual
+ * field, or collection elements, or map keys, or map values being configured.
  * 
  * @author Joannick Gardize
  *
@@ -27,45 +31,14 @@ public class ObjectSerializerConfigurationHelper {
     }
 
     /**
-     * Start to configure the given field. And set the current node the field's root
-     * (this matters for array / collection / map types).
+     * Start to configure the given field. And set the current node this field's
+     * root (this matters for array / collection / map types).
      * 
      * @param fieldName the field name as it is declared in the class
      * @return this, for chaining
      */
     public ObjectSerializerConfigurationHelper configure(String fieldName) {
         currentNode = objectSerializer.configure(fieldName);
-        return this;
-    }
-
-    /**
-     * Mark the current node as shared reference.
-     * 
-     * @return this, for chaining
-     */
-    public ObjectSerializerConfigurationHelper sharedReference() {
-        currentNode.setSharedReference(true);
-        return this;
-    }
-
-    /**
-     * Mark the current node as undefined type.
-     * 
-     * @return this, for chaining
-     */
-    public ObjectSerializerConfigurationHelper undefinedType() {
-        currentNode.setUndefinedType(true);
-        return this;
-    }
-
-    /**
-     * Specify the concrete type of the current node.
-     * 
-     * @param type the concre type to use for the current node
-     * @return this, for chaining
-     */
-    public ObjectSerializerConfigurationHelper concreteType(Class<?> type) {
-        currentNode.setType(type);
         return this;
     }
 
@@ -115,6 +88,48 @@ public class ObjectSerializerConfigurationHelper {
             currentNode.setValuesConfiguration(new ConfigurationNode());
         }
         currentNode = currentNode.getValuesConfiguration();
+        return this;
+    }
+
+    /**
+     * Mark the current node as shared reference.
+     * 
+     * @return this, for chaining
+     */
+    public ObjectSerializerConfigurationHelper sharedReference() {
+        currentNode.setSharedReference(true);
+        return this;
+    }
+
+    /**
+     * Mark the current node as undefined type.
+     * 
+     * @return this, for chaining
+     */
+    public ObjectSerializerConfigurationHelper undefinedType() {
+        currentNode.setUndefinedType(true);
+        return this;
+    }
+
+    /**
+     * Specify the concrete type of the current node.
+     * 
+     * @param type the concre type to use for the current node
+     * @return this, for chaining
+     */
+    public ObjectSerializerConfigurationHelper concreteType(Class<?> type) {
+        currentNode.setType(type);
+        return this;
+    }
+
+    /**
+     * Mark the current node to be ignored. This only works for fields. If this is
+     * called for elements, keys or values, it has no effect.
+     * 
+     * @return this, for chaining
+     */
+    public ObjectSerializerConfigurationHelper ignore() {
+        currentNode.setIgnore(true);
         return this;
     }
 }

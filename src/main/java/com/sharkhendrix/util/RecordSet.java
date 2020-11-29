@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization.util;
+package com.sharkhendrix.util;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

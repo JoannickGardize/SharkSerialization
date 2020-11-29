@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization.util;
+package com.sharkhendrix.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
