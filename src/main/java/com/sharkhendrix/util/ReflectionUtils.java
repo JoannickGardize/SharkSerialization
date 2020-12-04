@@ -8,22 +8,47 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ReflectionUtils {
+
+    private static Set<Class<?>> primitiveWrappers = new HashSet<>();
+
+    static {
+        primitiveWrappers.add(Byte.class);
+        primitiveWrappers.add(Character.class);
+        primitiveWrappers.add(Boolean.class);
+        primitiveWrappers.add(Short.class);
+        primitiveWrappers.add(Integer.class);
+        primitiveWrappers.add(Long.class);
+        primitiveWrappers.add(Float.class);
+        primitiveWrappers.add(Double.class);
+    }
 
     private ReflectionUtils() {
     }
 
+    public static boolean isPrimitiveWrapper(Class<?> type) {
+        return primitiveWrappers.contains(type);
+    }
+
     /**
      * @param type
-     * @return True if the given class is a "normal" and instanciable class.
+     * @return true if the given class is a "normal" and instanciable class.
      */
     public static boolean isInstanciable(Class<?> type) {
         return !type.isAnnotation() && !type.isArray() && !type.isEnum() && !type.isInterface() && !type.isPrimitive() && !Modifier.isAbstract(type.getModifiers());
     }
 
+    /**
+     * Get all declared fields of the type and its ancestors
+     * 
+     * @param type the type to get all its fields
+     * @return all the declared fields in the class and its parents
+     */
     public static Field[] getAllFields(Class<?> type) {
         Class<?> currentClass = type;
         List<Field> fields = new ArrayList<>();

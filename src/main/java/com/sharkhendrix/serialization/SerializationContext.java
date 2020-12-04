@@ -19,7 +19,6 @@ import com.sharkhendrix.serialization.serializer.factory.FieldSerializerFactory;
  *
  */
 
-// TODO iterable of Serializer
 public interface SerializationContext {
 
     /**

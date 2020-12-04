@@ -7,6 +7,7 @@ import java.util.Map;
 import com.sharkhendrix.serialization.Serializer;
 import com.sharkhendrix.serialization.annotation.VarLenStrategy;
 import com.sharkhendrix.util.VarLenNumberIO;
+import com.sharkhendrix.util.VarLenTypeKey;
 
 public class PrimitiveArraySerializers {
 

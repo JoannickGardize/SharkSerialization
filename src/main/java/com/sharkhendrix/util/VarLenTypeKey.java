@@ -1,4 +1,4 @@
-package com.sharkhendrix.serialization.serializer;
+package com.sharkhendrix.util;
 
 import java.util.Objects;
 

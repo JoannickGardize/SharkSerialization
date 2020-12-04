@@ -9,6 +9,8 @@ import com.sharkhendrix.serialization.annotation.ElementsConfiguration;
 import com.sharkhendrix.serialization.annotation.ElementsConfiguration.Type;
 import com.sharkhendrix.serialization.annotation.SharedReference;
 import com.sharkhendrix.serialization.annotation.UndefinedType;
+import com.sharkhendrix.serialization.annotation.VarLen;
+import com.sharkhendrix.serialization.annotation.VarLenStrategy;
 
 public class SharkSerializationTestModel {
     public static class PrimitiveClass {
@@ -21,78 +23,6 @@ public class SharkSerializationTestModel {
         long l;
         double d;
         float f;
-
-        public char getC() {
-            return c;
-        }
-
-        public void setC(char c) {
-            this.c = c;
-        }
-
-        public boolean isBo() {
-            return bo;
-        }
-
-        public void setBo(boolean bo) {
-            this.bo = bo;
-        }
-
-        public String getSt() {
-            return st;
-        }
-
-        public void setSt(String st) {
-            this.st = st;
-        }
-
-        public byte getB() {
-            return b;
-        }
-
-        public void setB(byte b) {
-            this.b = b;
-        }
-
-        public short getSh() {
-            return sh;
-        }
-
-        public void setSh(short sh) {
-            this.sh = sh;
-        }
-
-        public int getI() {
-            return i;
-        }
-
-        public void setI(int i) {
-            this.i = i;
-        }
-
-        public long getL() {
-            return l;
-        }
-
-        public void setL(long l) {
-            this.l = l;
-        }
-
-        public double getD() {
-            return d;
-        }
-
-        public void setD(double d) {
-            this.d = d;
-        }
-
-        public float getF() {
-            return f;
-        }
-
-        public void setF(float f) {
-            this.f = f;
-        }
     }
 
     public static class PrimitiveArrayClass {
@@ -113,54 +43,6 @@ public class SharkSerializationTestModel {
         Long l;
         Double d;
         Float f;
-
-        public Byte getB() {
-            return b;
-        }
-
-        public void setB(Byte b) {
-            this.b = b;
-        }
-
-        public Short getS() {
-            return s;
-        }
-
-        public void setS(Short s) {
-            this.s = s;
-        }
-
-        public Integer getI() {
-            return i;
-        }
-
-        public void setI(Integer i) {
-            this.i = i;
-        }
-
-        public Long getL() {
-            return l;
-        }
-
-        public void setL(Long l) {
-            this.l = l;
-        }
-
-        public Double getD() {
-            return d;
-        }
-
-        public void setD(Double d) {
-            this.d = d;
-        }
-
-        public Float getF() {
-            return f;
-        }
-
-        public void setF(Float f) {
-            this.f = f;
-        }
     }
 
     public static class A {
@@ -301,5 +183,27 @@ public class SharkSerializationTestModel {
 
     public static enum AnEnumType {
         CONSTANT1, CONSTANT2;
+    }
+
+    public static class VarLenStrategyIntClass {
+        @VarLen(VarLenStrategy.POSITIVE)
+        int i;
+    }
+
+    public static class VarLenStrategyLongClass {
+        @VarLen(VarLenStrategy.POSITIVE)
+        long l;
+    }
+
+    public static class IntArrayVarLenClass {
+
+        @ElementsConfiguration(varLenStrategy = VarLenStrategy.POSITIVE)
+        int[] array;
+    }
+
+    public static class LongArrayVarLenClass {
+
+        @ElementsConfiguration(varLenStrategy = VarLenStrategy.POSITIVE)
+        long[] array;
     }
 }

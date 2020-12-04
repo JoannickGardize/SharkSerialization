@@ -14,6 +14,7 @@ import com.sharkhendrix.serialization.serializer.CollectionSerializer;
 import com.sharkhendrix.serialization.serializer.ConfigurationNode;
 import com.sharkhendrix.serialization.serializer.MapSerializer;
 import com.sharkhendrix.serialization.serializer.PrimitiveArraySerializers;
+import com.sharkhendrix.serialization.serializer.PrimitiveWrapperSerializers;
 import com.sharkhendrix.serialization.serializer.SharedReferenceSerializer;
 import com.sharkhendrix.serialization.serializer.UndefinedTypeSerializer;
 import com.sharkhendrix.serialization.serializer.fieldaccess.ObjectFieldAccessor;
@@ -33,8 +34,9 @@ public class FieldSerializerFactoryDefaultConfigurator {
         factory.setFieldConfigurator((f, defaultConf) -> ConfigurationNodeTypeMerger.merge(defaultConf == null ? AnnotationConfigurationFactory.build(f) : defaultConf,
                 ReflectionUtils.getComponentTypeHierarchy(f)));
 
+        factory.getSerializerFactory().addCase("primitive wrapper", n -> n.getType() != null && ReflectionUtils.isPrimitiveWrapper(n.getType()), this::primitiveWrapper);
         factory.getSerializerFactory().addCase("primitive array", n -> n.getType() != null && n.getType().isArray() && n.getType().getComponentType().isPrimitive(),
-                n -> PrimitiveArraySerializers.get(n.getType(), n.getVarLenStrategy()));
+                this::primitiveArrayBuilder);
         factory.getSerializerFactory().addCase("array", n -> n.getType() != null && n.getType().isArray() && !n.getType().getComponentType().isPrimitive(),
                 this::nonPrimitiveArrayBuilder);
         factory.getSerializerFactory().addCase("collection", n -> n.getType() != null && Collection.class.isAssignableFrom(n.getType()), this::collectionBuilder);
@@ -45,6 +47,10 @@ public class FieldSerializerFactoryDefaultConfigurator {
                 cf -> PrimitiveFieldAccessors.get(cf.getField(), cf.getConfiguration().getVarLenStrategy()));
         factory.getFieldAccessorFactory()
                 .setDefaultBuilder(cf -> new ObjectFieldAccessor(cf.getField(), context.getFieldSerializerFactory().buildSerializer(cf.getConfiguration())));
+    }
+
+    private Serializer<?> primitiveWrapper(ConfigurationNode fieldConfiguration) {
+        return PrimitiveWrapperSerializers.get(fieldConfiguration.getType(), fieldConfiguration.getVarLenStrategy());
     }
 
     private Serializer<?> defaultBuilder(ConfigurationNode fieldConfiguration) {
@@ -61,13 +67,18 @@ public class FieldSerializerFactoryDefaultConfigurator {
         return decorateWithSharedReferenceIfRequired(configuration, serializer);
     }
 
-    private Serializer<?> nonPrimitiveArrayBuilder(ConfigurationNode fieldConfiguration) {
-        return collectionBuilder(fieldConfiguration, (t, u) -> new ArraySerializer<>(t, u));
+    private Serializer<?> primitiveArrayBuilder(ConfigurationNode fieldConfiguration) {
+        return PrimitiveArraySerializers.get(fieldConfiguration.getType(), fieldConfiguration.getElementsConfiguration().getVarLenStrategy());
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
+    private Serializer<?> nonPrimitiveArrayBuilder(ConfigurationNode fieldConfiguration) {
+        return collectionBuilder(fieldConfiguration, ArraySerializer::new);
+    }
+
+    @SuppressWarnings({ "unchecked" })
     private Serializer<?> collectionBuilder(ConfigurationNode fieldConfiguration) {
-        return collectionBuilder(fieldConfiguration, (t, u) -> new CollectionSerializer(t, u));
+        return collectionBuilder(fieldConfiguration, CollectionSerializer::new);
     }
 
     private Serializer<?> collectionBuilder(ConfigurationNode configurationNode, BiFunction<IntFunction<?>, Serializer<?>, Serializer<?>> serializerConstructor) {

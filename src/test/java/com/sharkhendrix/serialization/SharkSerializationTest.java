@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,8 @@ import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedRe
 import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedReferenceClassB;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.CyclicSharedReferenceWrapper;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.ImplementationClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.IntArrayVarLenClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.LongArrayVarLenClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.MapClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.ParameterizedListClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.PrimitiveArrayClass;
@@ -33,7 +36,11 @@ import com.sharkhendrix.serialization.SharkSerializationTestModel.SharedUndefine
 import com.sharkhendrix.serialization.SharkSerializationTestModel.SimpleSharedReferenceClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.TransientFieldClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.UndefinedFieldsClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.VarLenStrategyIntClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.VarLenStrategyLongClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.WrapperClass;
+import com.sharkhendrix.serialization.annotation.VarLenStrategy;
+import com.sharkhendrix.serialization.serializer.ObjectSerializerConfigurationHelper;
 
 public class SharkSerializationTest {
 
@@ -131,7 +138,7 @@ public class SharkSerializationTest {
     @Test
     public void registerInterfaceFailTest() {
         SharkSerialization serialization = new SharkSerialization();
-        serialization.registerObject(List.class, () -> new ArrayList<>());
+        serialization.registerObject(List.class, ArrayList::new);
         Assertions.assertThrows(IllegalArgumentException.class, serialization::initialize);
     }
 
@@ -389,6 +396,86 @@ public class SharkSerializationTest {
         Assertions.assertNotNull(a2.c);
     }
 
+    @Test
+    public void varLenStrategyIntTest() {
+        testVarInt(c -> {
+        }, 0b1111111, 2);
+        testVarInt(c -> c.configure("i").varLenStrategy(VarLenStrategy.NORMAL), -1, 2);
+        testVarInt(c -> c.configure("i").varLenStrategy(VarLenStrategy.NONE), 0, 5);
+    }
+
+    @Test
+    public void varLenStrategyLongTest() {
+        testVarLong(c -> {
+        }, 0b1111111, 2);
+        testVarLong(c -> c.configure("l").varLenStrategy(VarLenStrategy.NORMAL), -1, 2);
+        testVarLong(c -> c.configure("l").varLenStrategy(VarLenStrategy.NONE), 0, 9);
+    }
+
+    @Test
+    public void varLenStrategyIntArrayTest() {
+        testArrayVarInt(c -> {
+        }, 0b1111111, 3);
+        testArrayVarInt(c -> c.configure("array").elements().varLenStrategy(VarLenStrategy.NORMAL), -1, 3);
+        testArrayVarInt(c -> c.configure("array").elements().varLenStrategy(VarLenStrategy.NONE), 0, 6);
+    }
+
+    @Test
+    public void varLenStrategyLongArrayTest() {
+        testArrayVarLong(c -> {
+        }, 0b1111111, 3);
+        testArrayVarLong(c -> c.configure("array").elements().varLenStrategy(VarLenStrategy.NORMAL), -1, 3);
+        testArrayVarLong(c -> c.configure("array").elements().varLenStrategy(VarLenStrategy.NONE), 0, 10);
+    }
+
+    private void testVarInt(Consumer<ObjectSerializerConfigurationHelper> configuration, int value, int expectedLength) {
+        SharkSerialization serialization = new SharkSerialization();
+        configuration.accept(serialization.registerObject(VarLenStrategyIntClass.class, VarLenStrategyIntClass::new));
+        serialization.initialize();
+        VarLenStrategyIntClass object = new VarLenStrategyIntClass();
+        object.i = value;
+
+        VarLenStrategyIntClass object2 = writeAndRead(serialization, object, expectedLength);
+        Assertions.assertEquals(object.i, object2.i);
+    }
+
+    private void testVarLong(Consumer<ObjectSerializerConfigurationHelper> configuration, long value, int expectedLength) {
+        SharkSerialization serialization = new SharkSerialization();
+        configuration.accept(serialization.registerObject(VarLenStrategyLongClass.class, VarLenStrategyLongClass::new));
+        serialization.initialize();
+        VarLenStrategyLongClass object = new VarLenStrategyLongClass();
+        object.l = value;
+
+        VarLenStrategyLongClass object2 = writeAndRead(serialization, object, expectedLength);
+        Assertions.assertEquals(object.l, object2.l);
+    }
+
+    private void testArrayVarInt(Consumer<ObjectSerializerConfigurationHelper> configuration, int value, int expectedLength) {
+        SharkSerialization serialization = new SharkSerialization();
+        configuration.accept(serialization.registerObject(IntArrayVarLenClass.class, IntArrayVarLenClass::new));
+        serialization.initialize();
+
+        IntArrayVarLenClass object = new IntArrayVarLenClass();
+        object.array = new int[] { value };
+
+        IntArrayVarLenClass object2 = writeAndRead(serialization, object, expectedLength);
+
+        Assertions.assertArrayEquals(object.array, object2.array);
+    }
+
+    private void testArrayVarLong(Consumer<ObjectSerializerConfigurationHelper> configuration, long value, int expectedLength) {
+        SharkSerialization serialization = new SharkSerialization();
+        configuration.accept(serialization.registerObject(LongArrayVarLenClass.class, LongArrayVarLenClass::new));
+        serialization.initialize();
+
+        LongArrayVarLenClass object = new LongArrayVarLenClass();
+        object.array = new long[] { value };
+
+        LongArrayVarLenClass object2 = writeAndRead(serialization, object, expectedLength);
+
+        Assertions.assertArrayEquals(object.array, object2.array);
+    }
+
     private void testPrimitiveClass(SharkSerialization serialization) {
         PrimitiveClass a = new PrimitiveClass();
         a.c = 'a';
@@ -413,11 +500,18 @@ public class SharkSerializationTest {
         Assertions.assertEquals(a.f, a2.f);
     }
 
-    @SuppressWarnings("unchecked")
     private <T> T writeAndRead(SharkSerialization serialization, T initial) {
+        return writeAndRead(serialization, initial, -1);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T writeAndRead(SharkSerialization serialization, T initial, int expectedLength) {
         ByteBuffer bb = ByteBuffer.allocate(65536);
         serialization.write(bb, initial);
         bb.flip();
+        if (expectedLength != -1) {
+            Assertions.assertEquals(expectedLength, bb.limit());
+        }
         System.out.println(bb.limit());
         T object = (T) serialization.read(bb);
         return object;

@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.sharkhendrix.serialization.annotation.VarLenStrategy;
-import com.sharkhendrix.serialization.serializer.VarLenTypeKey;
 import com.sharkhendrix.util.VarLenNumberIO;
+import com.sharkhendrix.util.VarLenTypeKey;
 
 public class PrimitiveFieldAccessors {
 

@@ -3,6 +3,8 @@ package com.sharkhendrix.serialization.serializer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sharkhendrix.serialization.annotation.VarLenStrategy;
+
 /**
  * <p>
  * Utility object to configure an {@link ObjectSerializer} in a chaining way.
@@ -124,12 +126,17 @@ public class ObjectSerializerConfigurationHelper {
 
     /**
      * Mark the current node to be ignored. This only works for fields. If this is
-     * called for elements, keys or values, it has no effect.
+     * called for elements, keys or values, this has no effect.
      * 
      * @return this, for chaining
      */
     public ObjectSerializerConfigurationHelper ignore() {
         currentNode.setIgnore(true);
+        return this;
+    }
+
+    public ObjectSerializerConfigurationHelper varLenStrategy(VarLenStrategy varLenStrategy) {
+        currentNode.setVarLenStrategy(varLenStrategy);
         return this;
     }
 }
