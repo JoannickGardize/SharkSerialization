@@ -2,7 +2,7 @@
 
 # SharkSerialization
 
-SharkSerialization is an object graph serialization & synchronization framework with the goal of being super efficient in terms of execution time and data size, while being as most easy to use as possible.
+SharkSerialization is an object graph serialization framework with the goal of being super efficient in terms of execution time and data size, while being as most easy to use as possible.
 
 The target usage is to share real time based data. It is not recommanded for long term data storage, since any structural changes in a class of the graph will break readability of a previously serialized data.
 
