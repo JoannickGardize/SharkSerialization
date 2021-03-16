@@ -1,12 +1,5 @@
 ## Development progress
 
-*The development of this framework is still in progress*
-
-- [X] Object & primitives serializarion
-- [X] Collections & Maps serialization
-- [X] Alternative to annotations
-- [ ] Synchronization framework
-
 # SharkSerialization
 
 SharkSerialization is an object graph serialization & synchronization framework with the goal of being super efficient in terms of execution time and data size, while being as most easy to use as possible.
@@ -65,8 +58,8 @@ The data is 2 bytes length : 1 byte for the integer (variable-length compression
 ### Fields configuration
 
 The philosophy of SharkSerialization is to considers the graph to be simple by default, any complexity will require configuration:
-- Fields declared type and actual instance type always matches together, or at least matches a registered class and serializer pair, and are never null. If this is not the case for a class field, annotate it with `@UndefinedType` (+2 bytes of overhead). This is also possible to specify the value type if it is always the same with `@ConcreteType` (So you'll never have `@UndefinedType` and `@ConcreteType` in the same field).
-- There is no multiple references to the same instance. If this is the case, annotate the field with `@SharedReference` (+2 bytes of overhead for the first occurence, following occurences will only take 2 bytes), any field that possibly shares it's reference should be annotated with `@SharedReference`.
+- Fields declared type and actual instance type always matches together, or at least matches a registered class and serializer pair, and are never null. If this is not the case for a class field, annotate it with `@UndefinedType` (at least +1 byte of overhead). This is also possible to specify the value type if it is always the same with `@ConcreteType` (So you'll never have `@UndefinedType` and `@ConcreteType` in the same field).
+- There is no multiple references to the same instance. If this is the case, annotate the field with `@SharedReference` (at least +1 byte of overhead for the first occurence, following occurences will only take 1 or more bytes), any field that possibly shares it's reference should be annotated with `@SharedReference`.
 
 ### Fields with arrays, collections and maps configuration
 
