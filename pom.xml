@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>SharkHendrix</groupId>
 	<artifactId>Serialization</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<name>Shark Serialization</name>
-	<description>Fast &amp; easy serialization and synchronization of objects for Java</description>
+	<description>Fast &amp; easy serializer of objects for Java</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>

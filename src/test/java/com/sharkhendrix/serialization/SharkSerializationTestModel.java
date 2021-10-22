@@ -206,4 +206,13 @@ public class SharkSerializationTestModel {
         @ElementsConfiguration(varLenStrategy = VarLenStrategy.POSITIVE)
         long[] array;
     }
+
+    public static class WrapperVarLen {
+
+        @VarLen(VarLenStrategy.NONE)
+        Integer i;
+
+        @VarLen(VarLenStrategy.POSITIVE)
+        Long l;
+    }
 }

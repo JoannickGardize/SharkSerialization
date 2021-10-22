@@ -39,6 +39,7 @@ import com.sharkhendrix.serialization.SharkSerializationTestModel.UndefinedField
 import com.sharkhendrix.serialization.SharkSerializationTestModel.VarLenStrategyIntClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.VarLenStrategyLongClass;
 import com.sharkhendrix.serialization.SharkSerializationTestModel.WrapperClass;
+import com.sharkhendrix.serialization.SharkSerializationTestModel.WrapperVarLen;
 import com.sharkhendrix.serialization.annotation.VarLenStrategy;
 import com.sharkhendrix.serialization.serializer.ObjectSerializerConfigurationHelper;
 
@@ -426,6 +427,19 @@ public class SharkSerializationTest {
         }, 0b1111111, 3);
         testArrayVarLong(c -> c.configure("array").elements().varLenStrategy(VarLenStrategy.NORMAL), -1, 3);
         testArrayVarLong(c -> c.configure("array").elements().varLenStrategy(VarLenStrategy.NONE), 0, 10);
+    }
+
+    @Test
+    public void wrapperVarLenTest() {
+        SharkSerialization serialization = new SharkSerialization();
+        serialization.registerObject(WrapperVarLen.class, WrapperVarLen::new);
+        serialization.initialize();
+
+        WrapperVarLen object = new WrapperVarLen();
+        object.i = 0;
+        object.l = (long) Byte.MAX_VALUE;
+
+        writeAndRead(serialization, object, 6);
     }
 
     private void testVarInt(Consumer<ObjectSerializerConfigurationHelper> configuration, int value, int expectedLength) {
