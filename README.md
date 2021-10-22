@@ -57,7 +57,7 @@ The data is 2 bytes length : 1 byte for the integer (variable-length compression
 
 ### Fields configuration
 
-The philosophy of SharkSerialization is to considers the graph to be simple by default, any complexity will require configuration:
+The philosophy of SharkSerialization is to considers the object graph to be "simple" by default, any complexity will require configuration, "simple" means:
 - Fields declared type and actual instance type always matches together, or at least matches a registered class and serializer pair, and are never null. If this is not the case for a class field, annotate it with `@UndefinedType` (at least +1 byte of overhead). This is also possible to specify the value type if it is always the same with `@ConcreteType` (So you'll never have `@UndefinedType` and `@ConcreteType` in the same field).
 - There is no multiple references to the same instance. If this is the case, annotate the field with `@SharedReference` (at least +1 byte of overhead for the first occurence, following occurences will only take 1 or more bytes), any field that possibly shares it's reference should be annotated with `@SharedReference`.
 
@@ -100,7 +100,7 @@ Containers are treated specifically by the SerializerFactory (except for primiti
 
 ### Methods of configuration
 
-The previous examples of this chapter used annotation configuration, this is also possible to directly configure the serializer instead, for example, the equivalent of the previous map example would be:
+The previous examples of this chapter used annotation configuration, this is also possible to directly configure the serializer instead (useful if you don't have access to the class source code), for example, the equivalent of the previous map example would be:
 
 ```java
 serialization.registerObject(MapExample.class, MapExample::new).configure("map")
